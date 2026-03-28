@@ -2,7 +2,7 @@
 
 ## Phase 1 — Core Tracker
 **Goal:** Single target, 2D, constant velocity KF, basic visualization, RMSE.
-**Status:** TODO
+**Status:** DONE
 
 | Task | Status | Commit message |
 |------|--------|---------------|
@@ -21,11 +21,11 @@
 
 ## Phase 2 — Maneuver / Model Breakdown
 **Goal:** Show where CV model breaks during target maneuvers.
-**Status:** BLOCKED (waiting for Phase 1)
+**Status:** TODO
 
 | Task | Status | Commit message |
 |------|--------|---------------|
-| Add coordinated turn model to Target class | TODO | `feat: add coordinated turn target model` |
+| Add coordinated turn model to Target class | DONE | `feat: add coordinated turn target model` |
 | Add random maneuver model to Target class | TODO | `feat: add random maneuver target model` |
 | Create maneuver scenario showing CV KF degradation | TODO | `feat: add maneuver scenario with KF breakdown analysis` |
 | Add error-vs-time plot during maneuver | TODO | `feat: add maneuver error analysis plots` |

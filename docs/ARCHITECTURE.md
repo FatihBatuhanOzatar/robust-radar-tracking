@@ -177,6 +177,6 @@ Target.step()  →  true_state  →  Radar.measure()  →  noisy_measurement
 
 1. **Each module is independently testable** — Target doesn't know about Radar, Radar doesn't know about KF
 2. **No global state** — all parameters passed explicitly
-3. **NumPy arrays as interface** — state is always np.ndarray shape (4,) or (4,1)
+3. **NumPy arrays as interface** — state is always np.ndarray shape (4,)
 4. **Consistent state format** — [x, y, vx, vy] everywhere, always flat `(4,)` shape
 5. **Scheduler-ready** — KalmanFilter.step() is a pure function of (current_state, measurement), no side effects beyond updating internal state

@@ -83,3 +83,19 @@ Format: Each entry includes the date, commit type, and description of what chang
 - `test_straight_line_convergence`: Simulates 50 steps of noisy Tracking tracking with `radar.seed=42`, asserting KF RMSE is lower than RAW RMSE and final position bounds
 - Phase 1 completed successfully
 
+## 2026-03-28 — Coordinated Turn Target Model
+
+- **feat:** Added coordinated turn (CT) motion model to `Target` class in `radarsim/sim/target.py`
+- CT model moves the target along a circular arc at constant speed, tracking heading internally
+- New constructor parameter `turn_rate` (rad/s, required when `model="ct"`)
+- Near-zero turn rate (`abs < 1e-10`) delegates to CV model — physically correct (zero turn = straight line) and avoids division by zero
+- Exposed state stays `[x, y, vx, vy]` shape `(4,)` — heading is internal only
+- `get_trajectory()` saves/restores both `state` and `_heading` for non-destructive operation
+- **test:** Created `tests/test_target.py` with 8 tests covering CV basics and CT model:
+  - CT step returns correct shape `(4,)`
+  - CT preserves speed magnitude across 100 steps
+  - Near-zero turn rate produces identical trajectory to CV
+  - `get_trajectory()` is non-destructive for CT (state + heading restored)
+  - CT actually changes velocity direction over time
+  - CT requires `turn_rate` parameter (ValueError if missing)
+
