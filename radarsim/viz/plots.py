@@ -1,5 +1,7 @@
 """Static matplotlib plots for tracking visualization."""
 
+from typing import Optional
+
 import matplotlib.pyplot as plt
 import numpy as np
 
@@ -63,12 +65,19 @@ def plot_tracking_result(
 def plot_error_over_time(
     errors: np.ndarray,
     title: str = "Position Error Over Time",
+    vlines: Optional[list[dict]] = None,
 ) -> plt.Figure:
     """Plot per-step error over time.
 
     Args:
         errors: Error at each time step, shape (n_steps,).
         title: Plot title string.
+        vlines: Optional list of vertical line annotations. Each entry
+            is a dict with keys:
+            - "x": time step position (required)
+            - "label": annotation text (optional)
+            - "color": line color (optional, default "orange")
+            - "linestyle": line style (optional, default "--")
 
     Returns:
         Matplotlib Figure object. Caller is responsible for saving
@@ -83,6 +92,16 @@ def plot_error_over_time(
         linewidth=1, label=f"Mean = {np.mean(errors):.2f} m",
     )
 
+    if vlines:
+        for vline in vlines:
+            ax.axvline(
+                x=vline["x"],
+                color=vline.get("color", "orange"),
+                linestyle=vline.get("linestyle", "--"),
+                linewidth=1.5,
+                label=vline.get("label"),
+            )
+
     ax.set_xlabel("Time step")
     ax.set_ylabel("Error (m)")
     ax.set_title(title)
@@ -91,3 +110,4 @@ def plot_error_over_time(
 
     fig.tight_layout()
     return fig
+

@@ -113,3 +113,14 @@ Format: Each entry includes the date, commit type, and description of what chang
   - `get_trajectory()` restores state and RNG state
   - Random model requires `accel_std` parameter (ValueError if missing)
 
+## 2026-03-28 — Maneuver Scenario with KF Breakdown Analysis
+
+- **feat:** Created `examples/maneuver.py` — Phase 2 demo showing CV KF failure during coordinated turn
+- 3-phase scenario: straight (30 steps) → coordinated turn at ω=0.05 rad/s (40 steps) → straight (30 steps)
+- Trajectory built by stitching three Target instances, passing end state of each phase to the next
+- Per-segment RMSE analysis: straight=16.77m, turn=77.22m (4.6x degradation), recovery=40.77m
+- **feat:** Added optional `vlines` parameter to `plot_error_over_time()` in `radarsim/viz/plots.py`
+  - Draws vertical annotation lines with configurable color, style, and label
+  - Backward compatible — no change when `vlines` is not passed
+- Outputs: `output/maneuver_tracking.png` (2D trajectory), `output/maneuver_error.png` (error timeline with maneuver window annotated)
+
