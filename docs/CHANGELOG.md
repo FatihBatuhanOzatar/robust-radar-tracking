@@ -124,3 +124,19 @@ Format: Each entry includes the date, commit type, and description of what chang
   - Backward compatible — no change when `vlines` is not passed
 - Outputs: `output/maneuver_tracking.png` (2D trajectory), `output/maneuver_error.png` (error timeline with maneuver window annotated)
 
+## 2026-03-29 — ECM Simulation Model
+
+- **feat:** Implemented `ECMModel` class in `radarsim/sim/ecm.py` with three electronic countermeasure modes
+- **noise_spike:** Adds extra Gaussian noise scaled by `(noise_multiplier - 1) * noise_std` on top of existing radar noise, so total effective noise is `noise_multiplier * noise_std`
+- **dropout:** Drops measurements with configurable probability `dropout_prob`, returning `(None, False)` for predict-only KF operation
+- **bias:** Adds a fixed systematic offset vector `[bx, by]` to measurements — the hardest case for a KF since bias is indistinguishable from target motion
+- `apply(measurement, t)` returns `(degraded_measurement_or_None, is_valid)` tuple; outside the ECM window `[ecm_start, ecm_end)`, measurements pass through unchanged
+- ECM window boundaries: `ecm_start` is inclusive, `ecm_end` is exclusive
+- Optional `seed` parameter for reproducible dropout decisions and noise generation
+- Exported `ECMModel` from `radarsim.sim` subpackage
+- **Note:** `step_no_measurement()` already existed in `KalmanFilter` since Phase 1 — ROADMAP task marked DONE
+- **test:** Created `tests/test_ecm.py` with 13 tests covering all three modes:
+  - noise_spike: returns (ndarray, True) with shape (2,), passthrough outside window, adds noise during window, requires positive noise_std
+  - dropout: returns (None, False) during window, passthrough outside window, partial probability keeps some measurements
+  - bias: adds exact offset during window, passthrough outside window, requires bias parameter
+  - validation: invalid mode raises ValueError, window boundary semantics (start inclusive, end exclusive)

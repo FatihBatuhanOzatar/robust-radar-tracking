@@ -21,16 +21,16 @@
 
 ## Phase 2 — Maneuver / Model Breakdown
 **Goal:** Show where CV model breaks during target maneuvers.
-**Status:** TODO
+**Status:** DONE
 
 | Task | Status | Commit message |
 |------|--------|---------------|
 | Add coordinated turn model to Target class | DONE | `feat: add coordinated turn target model` |
 | Add random maneuver model to Target class | DONE | `feat: add random maneuver target model` |
 | Create maneuver scenario showing CV KF degradation | DONE | `feat: add maneuver scenario with KF breakdown analysis` |
-| Add error-vs-time plot during maneuver | TODO | `feat: add maneuver error analysis plots` |
-| Optional: constant acceleration model comparison | TODO | `feat: add CA model comparison` |
-| Create examples/maneuver.py demo | TODO | `feat: add maneuver tracking example` |
+| Add error-vs-time plot during maneuver | DONE | `feat: add maneuver error analysis plots` |
+| Optional: constant acceleration model comparison | SKIPPED | — |
+| Create examples/maneuver.py demo | DONE | `feat: add maneuver tracking example` |
 
 **Exit criteria:** Clear graph showing KF error spike during maneuver vs straight-line tracking.
 
@@ -38,12 +38,12 @@
 
 ## Phase 3 — ECM / Measurement Degradation
 **Goal:** Analyze filter behavior under jamming and signal loss.
-**Status:** BLOCKED (waiting for Phase 2)
+**Status:** TODO
 
 | Task | Status | Commit message |
 |------|--------|---------------|
-| Implement ECMModel class (noise spike, dropout, bias) | TODO | `feat: add ECM simulation model` |
-| Implement predict-only mode in KF (no measurement) | TODO | `feat: add predict-only mode for measurement dropout` |
+| Implement ECMModel class (noise spike, dropout, bias) | DONE | `feat: add ECM simulation model` |
+| Implement predict-only mode in KF (no measurement) | DONE | (already implemented in Phase 1 as `step_no_measurement()`) |
 | Create ECM scenario with noise spike | TODO | `feat: add noise spike ECM scenario` |
 | Create ECM scenario with measurement dropout | TODO | `feat: add measurement dropout scenario` |
 | Analyze recovery time after ECM ends | TODO | `feat: add ECM recovery analysis` |
