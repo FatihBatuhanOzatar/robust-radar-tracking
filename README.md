@@ -44,14 +44,6 @@ Modular design — each component is independently testable. The tracker doesn't
 
 Python 3.10+, NumPy, Matplotlib. No ML frameworks, no heavy dependencies. Kalman filter implemented from scratch — no library calls.
 
-## Quick Start
-
-```bash
-git clone https://github.com/<username>/robust-radar-tracking.git
-cd robust-radar-tracking
-pip install -r requirements.txt
-python examples/single_target.py
-```
 
 ## Defense Domain Context
 
