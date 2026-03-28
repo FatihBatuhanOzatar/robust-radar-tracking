@@ -11,7 +11,7 @@
 | Implement Radar class with Gaussian noise | DONE | `feat: add noisy radar measurement generation` |
 | Implement KalmanFilter class (CV model) | DONE | `feat: implement constant velocity Kalman filter` |
 | Implement metrics.py (RMSE, position error) | DONE | `feat: add RMSE and error metrics` |
-| Implement plots.py (tracking result plot, error plot) | TODO | `feat: add tracking result visualization` |
+| Implement plots.py (tracking result plot, error plot) | DONE | `feat: add tracking result visualization` |
 | Create examples/single_target.py demo | TODO | `feat: add single target tracking example` |
 | Add unit tests for KF (predict, update, convergence) | TODO | `test: add Kalman filter unit tests` |
 

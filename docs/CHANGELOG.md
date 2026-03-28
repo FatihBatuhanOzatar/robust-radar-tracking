@@ -59,4 +59,11 @@ Format: Each entry includes the date, commit type, and description of what chang
 - All functions take `(n_steps, 4)` arrays, use `np.linalg.norm` for Euclidean distance
 - Exported all three functions from `radarsim.analysis` subpackage
 
+## 2026-03-28 — Tracking Result Visualization
+
+- **feat:** Implemented `radarsim/viz/plots.py` with two plotting functions
+- `plot_tracking_result(true, measured, estimated, title)` — 2D plot comparing true trajectory (blue solid), radar measurements (red scatter), and KF estimate (green dashed), with start/end markers, grid, equal aspect ratio
+- `plot_error_over_time(errors, title)` — error timeline with mean error reference line
+- Both functions return `matplotlib.figure.Figure` for caller to save via `fig.savefig()`, no `plt.show()` calls
+- Exported both functions from `radarsim.viz` subpackage
 
