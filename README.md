@@ -22,8 +22,8 @@ The core question: **how do you track something you can barely see?**
 | Phase | Description | Status |
 |-------|-------------|--------|
 | 1 | Single target, constant velocity KF, RMSE | DONE |
-| 2 | Maneuver scenarios, model breakdown analysis | IN PROGRESS |
-| 3 | ECM — jamming, dropout, bias, recovery analysis | ⏳ Planned |
+| 2 | Maneuver scenarios, model breakdown analysis | DONE |
+| 3 | ECM — jamming, dropout, bias, recovery analysis | IN PROGRESS |
 | 4 | Multi-target tracking with data association | ⏳ Planned |
 | 5 | Comprehensive analysis, visualization, documentation | ⏳ Planned |
 | 6 | Optional extensions (EKF, C++ port, scheduler) | ⏳ Planned |
