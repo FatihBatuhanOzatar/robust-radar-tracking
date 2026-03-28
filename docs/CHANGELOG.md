@@ -28,3 +28,11 @@ Format: Each entry includes the date, commit type, and description of what chang
 - `get_trajectory(dt, n_steps)` generates full trajectory `(n_steps, 4)` non-destructively
 - Future models (`ct`, `random`) raise `NotImplementedError` until Phase 2
 - Exported `Target` from `radarsim.sim` subpackage
+
+## 2026-03-28 — Noisy Radar Measurement Generation
+
+- **feat:** Implemented `Radar` class in `radarsim/sim/radar.py` with Gaussian noise model
+- `measure(true_state)` extracts position from state `(4,)`, adds independent Gaussian noise, returns `(2,)`
+- `measure_batch(true_states)` vectorized batch processing for full trajectories `(n_steps, 4)` → `(n_steps, 2)`
+- Uses `np.random.default_rng()` with optional `seed` keyword for reproducible noise
+- Exported `Radar` from `radarsim.sim` subpackage
