@@ -75,3 +75,11 @@ Format: Each entry includes the date, commit type, and description of what chang
 - Printed tracked metrics: raw radar RMSE (30.02m) and KF RMSE (16.51m) verifying ~45% improvement
 - Hooked up `radarsim.viz.plots` to output standard `output/single_target_tracking.png` and `output/single_target_error.png`
 
+## 2026-03-28 — Kalman Filter Unit Tests
+
+- **test:** Created `tests/test_kf.py` with 3 core unit tests
+- `test_predict_constant_velocity`: Verifies position advances by exactly `v * dt` and velocity remains constant
+- `test_update_reduces_uncertainty`: Verifies that incorporating a radar measurement strictly reduces the trace of the covariance matrix `P`
+- `test_straight_line_convergence`: Simulates 50 steps of noisy Tracking tracking with `radar.seed=42`, asserting KF RMSE is lower than RAW RMSE and final position bounds
+- Phase 1 completed successfully
+
