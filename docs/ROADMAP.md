@@ -12,7 +12,7 @@
 | Implement KalmanFilter class (CV model) | DONE | `feat: implement constant velocity Kalman filter` |
 | Implement metrics.py (RMSE, position error) | DONE | `feat: add RMSE and error metrics` |
 | Implement plots.py (tracking result plot, error plot) | DONE | `feat: add tracking result visualization` |
-| Create examples/single_target.py demo | TODO | `feat: add single target tracking example` |
+| Create examples/single_target.py demo | DONE | `feat: add single target tracking example` |
 | Add unit tests for KF (predict, update, convergence) | TODO | `test: add Kalman filter unit tests` |
 
 **Exit criteria:** `python examples/single_target.py` produces tracking plot with visible RMSE improvement over raw radar.

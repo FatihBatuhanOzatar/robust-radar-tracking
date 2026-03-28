@@ -67,3 +67,11 @@ Format: Each entry includes the date, commit type, and description of what chang
 - Both functions return `matplotlib.figure.Figure` for caller to save via `fig.savefig()`, no `plt.show()` calls
 - Exported both functions from `radarsim.viz` subpackage
 
+## 2026-03-28 — Single Target Tracking Example
+
+- **feat:** Added `examples/single_target.py` demo for Phase 1
+- Initialized tracking scenario with constant velocity target (60 steps, dt=1s)
+- Configured 2D radar with 25m measurement noise vs KF with q=0.5
+- Printed tracked metrics: raw radar RMSE (30.02m) and KF RMSE (16.51m) verifying ~45% improvement
+- Hooked up `radarsim.viz.plots` to output standard `output/single_target_tracking.png` and `output/single_target_error.png`
+
