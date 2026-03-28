@@ -7,7 +7,7 @@
 | Task | Status | Commit message |
 |------|--------|---------------|
 | Create project structure, requirements.txt, .gitignore | DONE | `init: create project structure and requirements` |
-| Implement Target class with constant velocity model | TODO | `feat: add linear target simulation` |
+| Implement Target class with constant velocity model | DONE | `feat: add linear target simulation` |
 | Implement Radar class with Gaussian noise | TODO | `feat: add noisy radar measurement generation` |
 | Implement KalmanFilter class (CV model) | TODO | `feat: implement constant velocity Kalman filter` |
 | Implement metrics.py (RMSE, position error) | TODO | `feat: add RMSE and error metrics` |

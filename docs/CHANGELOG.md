@@ -19,3 +19,12 @@ Format: Each entry includes the date, commit type, and description of what chang
 - **init:** Created `examples/` and `tests/` directories
 - **init:** Added `requirements.txt` (numpy, matplotlib, pytest)
 - **init:** Added `.gitignore` (Python, IDE, OS files, `output/` directory)
+
+## 2026-03-28 — Linear Target Simulation
+
+- **feat:** Implemented `Target` class in `radarsim/sim/target.py` with constant velocity motion model
+- CV model updates position via `x += vx*dt`, velocity unchanged — pure ground truth, no noise
+- `step(dt)` advances one time step, returns flat `(4,)` state `[x, y, vx, vy]`
+- `get_trajectory(dt, n_steps)` generates full trajectory `(n_steps, 4)` non-destructively
+- Future models (`ct`, `random`) raise `NotImplementedError` until Phase 2
+- Exported `Target` from `radarsim.sim` subpackage
