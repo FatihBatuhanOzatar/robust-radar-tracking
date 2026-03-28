@@ -36,3 +36,27 @@ Format: Each entry includes the date, commit type, and description of what chang
 - `measure_batch(true_states)` vectorized batch processing for full trajectories `(n_steps, 4)` → `(n_steps, 2)`
 - Uses `np.random.default_rng()` with optional `seed` keyword for reproducible noise
 - Exported `Radar` from `radarsim.sim` subpackage
+
+## 2026-03-28 — Constant Velocity Kalman Filter
+
+- **feat:** Implemented `KalmanFilter` class in `radarsim/tracker/kf.py` with constant-velocity model
+- State vector `[x, y, vx, vy]` shape `(4,)` — flat arrays externally, 2D matrix math internally
+- Physically-derived Q matrix from acceleration uncertainty (Bar-Shalom formulation), not arbitrary diagonal
+- `init_state(z)` sets position from first measurement, velocity to zero, large initial P for velocity
+- `predict()` projects state and covariance forward: `x = F @ x`, `P = F @ P @ F.T + Q`
+- `update(z)` incorporates measurement via Kalman gain, uses Joseph form for numerical stability
+- `step(z)` combines predict + update; `step_no_measurement()` predict-only for future ECM dropout
+- R matrix: `diag(r_x², r_y²)` — separate configurable noise per axis
+- Quick-test: ~42% RMSE improvement over raw radar on 50-step constant-velocity scenario
+- Exported `KalmanFilter` from `radarsim.tracker` subpackage
+
+## 2026-03-28 — RMSE and Error Metrics
+
+- **feat:** Implemented `radarsim/analysis/metrics.py` with three functions
+- `rmse(true_states, estimated_states)` — scalar RMSE on position across all time steps
+- `position_error_over_time(true_states, estimated_states)` — per-step Euclidean position error, shape `(n_steps,)`
+- `velocity_error_over_time(true_states, estimated_states)` — per-step Euclidean velocity error, shape `(n_steps,)`
+- All functions take `(n_steps, 4)` arrays, use `np.linalg.norm` for Euclidean distance
+- Exported all three functions from `radarsim.analysis` subpackage
+
+

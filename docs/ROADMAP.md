@@ -9,8 +9,8 @@
 | Create project structure, requirements.txt, .gitignore | DONE | `init: create project structure and requirements` |
 | Implement Target class with constant velocity model | DONE | `feat: add linear target simulation` |
 | Implement Radar class with Gaussian noise | DONE | `feat: add noisy radar measurement generation` |
-| Implement KalmanFilter class (CV model) | TODO | `feat: implement constant velocity Kalman filter` |
-| Implement metrics.py (RMSE, position error) | TODO | `feat: add RMSE and error metrics` |
+| Implement KalmanFilter class (CV model) | DONE | `feat: implement constant velocity Kalman filter` |
+| Implement metrics.py (RMSE, position error) | DONE | `feat: add RMSE and error metrics` |
 | Implement plots.py (tracking result plot, error plot) | TODO | `feat: add tracking result visualization` |
 | Create examples/single_target.py demo | TODO | `feat: add single target tracking example` |
 | Add unit tests for KF (predict, update, convergence) | TODO | `test: add Kalman filter unit tests` |
