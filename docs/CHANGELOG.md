@@ -99,3 +99,17 @@ Format: Each entry includes the date, commit type, and description of what chang
   - CT actually changes velocity direction over time
   - CT requires `turn_rate` parameter (ValueError if missing)
 
+## 2026-03-28 — Random Maneuver Target Model
+
+- **feat:** Added random maneuver model to `Target` class in `radarsim/sim/target.py`
+- Random acceleration perturbations drawn from `N(0, accel_std²)` independently in x and y each step
+- Position update uses full kinematic equation: `x += v*dt + 0.5*a*dt²`
+- New constructor parameters: `accel_std` (required for `model="random"`), `seed` (optional reproducibility)
+- RNG state (`np.random.default_rng`) saved/restored in `get_trajectory()` for non-destructive + reproducible operation
+- **test:** Added 5 tests for random model to `tests/test_target.py`:
+  - Random step returns correct shape `(4,)`
+  - Random model changes velocity between steps
+  - Same seed produces identical trajectories
+  - `get_trajectory()` restores state and RNG state
+  - Random model requires `accel_std` parameter (ValueError if missing)
+

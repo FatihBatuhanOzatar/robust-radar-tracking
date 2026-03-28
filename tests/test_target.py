@@ -113,3 +113,71 @@ def test_ct_requires_turn_rate():
     """CT model raises ValueError when turn_rate is not provided."""
     with pytest.raises(ValueError, match="turn_rate is required"):
         Target(x0=0.0, y0=0.0, vx0=10.0, vy0=0.0, model="ct")
+
+
+# --- Random Maneuver Model Tests ---
+
+def test_random_step_returns_correct_shape():
+    """Random step returns np.ndarray of shape (4,)."""
+    target = Target(
+        x0=0.0, y0=0.0, vx0=50.0, vy0=0.0,
+        model="random", accel_std=2.0, seed=42,
+    )
+    state = target.step(1.0)
+    assert isinstance(state, np.ndarray)
+    assert state.shape == (4,)
+
+
+def test_random_changes_velocity():
+    """Random model changes velocity between steps (unlike CV)."""
+    target = Target(
+        x0=0.0, y0=0.0, vx0=50.0, vy0=0.0,
+        model="random", accel_std=5.0, seed=42,
+    )
+    state1 = target.step(1.0)
+    state2 = target.step(1.0)
+
+    # Velocity should differ between steps due to random acceleration
+    assert not np.allclose(state1[2:], state2[2:])
+
+
+def test_random_reproducible_with_seed():
+    """Same seed produces identical trajectories."""
+    kwargs = dict(x0=0.0, y0=0.0, vx0=30.0, vy0=10.0,
+                  model="random", accel_std=3.0, seed=123)
+
+    target_a = Target(**kwargs)
+    traj_a = target_a.get_trajectory(1.0, 50)
+
+    target_b = Target(**kwargs)
+    traj_b = target_b.get_trajectory(1.0, 50)
+
+    np.testing.assert_array_equal(traj_a, traj_b)
+
+
+def test_random_get_trajectory_non_destructive():
+    """get_trajectory() restores state and RNG state for random model."""
+    target = Target(
+        x0=0.0, y0=0.0, vx0=50.0, vy0=0.0,
+        model="random", accel_std=2.0, seed=42,
+    )
+
+    # Advance a few steps
+    for _ in range(5):
+        target.step(1.0)
+
+    state_before = target.state.copy()
+    rng_state_before = target._rng.bit_generator.state
+
+    trajectory = target.get_trajectory(1.0, 50)
+
+    assert trajectory.shape == (50, 4)
+    np.testing.assert_array_equal(target.state, state_before)
+    # RNG state must also be restored
+    assert target._rng.bit_generator.state == rng_state_before
+
+
+def test_random_requires_accel_std():
+    """Random model raises ValueError when accel_std is not provided."""
+    with pytest.raises(ValueError, match="accel_std is required"):
+        Target(x0=0.0, y0=0.0, vx0=10.0, vy0=0.0, model="random")

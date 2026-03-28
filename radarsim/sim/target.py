@@ -18,10 +18,14 @@ class Target:
         vx0: Initial x velocity (meters/second).
         vy0: Initial y velocity (meters/second).
         model: Motion model identifier. Supported: "cv" (constant
-            velocity), "ct" (coordinated turn). Future: "random".
+            velocity), "ct" (coordinated turn), "random" (random
+            acceleration perturbations).
         turn_rate: Turn rate in rad/s (omega). Required when model="ct".
             If abs(turn_rate) < 1e-10, the CT model delegates to CV
             (zero turn rate = straight line).
+        accel_std: Standard deviation of random acceleration
+            perturbations in m/s². Required when model="random".
+        seed: Optional RNG seed for reproducible random trajectories.
 
     Attributes:
         state: Current state vector [x, y, vx, vy], shape (4,).
@@ -38,6 +42,8 @@ class Target:
         vy0: float,
         model: str = "cv",
         turn_rate: Optional[float] = None,
+        accel_std: Optional[float] = None,
+        seed: Optional[int] = None,
     ) -> None:
         if model not in self.SUPPORTED_MODELS:
             raise ValueError(
@@ -48,6 +54,9 @@ class Target:
         if model == "ct" and turn_rate is None:
             raise ValueError("turn_rate is required when model='ct'.")
 
+        if model == "random" and accel_std is None:
+            raise ValueError("accel_std is required when model='random'.")
+
         self.state: np.ndarray = np.array([x0, y0, vx0, vy0], dtype=float)
         self.model: str = model
         self._initial_state: np.ndarray = self.state.copy()
@@ -56,6 +65,11 @@ class Target:
         self._turn_rate: Optional[float] = turn_rate
         self._heading: float = float(np.arctan2(vy0, vx0))
         self._initial_heading: float = self._heading
+
+        # Random-specific internal state
+        self._accel_std: Optional[float] = accel_std
+        self._rng: np.random.Generator = np.random.default_rng(seed)
+        self._initial_rng_state = self._rng.bit_generator.state
 
     def step(self, dt: float) -> np.ndarray:
         """Advance the target state by one time step.
@@ -74,9 +88,7 @@ class Target:
         elif self.model == "ct":
             self._step_ct(dt)
         elif self.model == "random":
-            raise NotImplementedError(
-                "Random maneuver model not yet implemented (Phase 2)."
-            )
+            self._step_random(dt)
 
         return self.state.copy()
 
@@ -84,8 +96,8 @@ class Target:
         """Generate a full trajectory from the initial state.
 
         Resets to the initial state (including internal heading for CT
-        model), runs n_steps forward, then restores all state. This
-        makes the method non-destructive.
+        model and RNG state for random model), runs n_steps forward,
+        then restores all state. This makes the method non-destructive.
 
         Args:
             dt: Time step duration (seconds).
@@ -97,8 +109,10 @@ class Target:
         """
         saved_state = self.state.copy()
         saved_heading = self._heading
+        saved_rng_state = self._rng.bit_generator.state
         self.state = self._initial_state.copy()
         self._heading = self._initial_heading
+        self._rng.bit_generator.state = self._initial_rng_state
 
         trajectory = np.zeros((n_steps, 4))
         for i in range(n_steps):
@@ -107,6 +121,7 @@ class Target:
 
         self.state = saved_state
         self._heading = saved_heading
+        self._rng.bit_generator.state = saved_rng_state
         return trajectory
 
     def _step_cv(self, dt: float) -> None:
@@ -154,3 +169,27 @@ class Target:
         self.state[3] = speed * np.sin(theta_new)
 
         self._heading = theta_new
+
+    def _step_random(self, dt: float) -> None:
+        """Random maneuver motion update.
+
+        Applies random acceleration perturbations drawn from a normal
+        distribution N(0, accel_std^2) independently in x and y.
+        Position update uses the full kinematic equation.
+
+        Args:
+            dt: Time step duration (seconds).
+        """
+        accel_std = self._accel_std
+        assert accel_std is not None  # guaranteed by __init__ validation
+
+        ax = self._rng.normal(0.0, accel_std)
+        ay = self._rng.normal(0.0, accel_std)
+
+        # Position update (kinematic: x += v*dt + 0.5*a*dt²)
+        self.state[0] += self.state[2] * dt + 0.5 * ax * dt ** 2
+        self.state[1] += self.state[3] * dt + 0.5 * ay * dt ** 2
+
+        # Velocity update
+        self.state[2] += ax * dt
+        self.state[3] += ay * dt
