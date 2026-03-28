@@ -44,11 +44,11 @@
 |------|--------|---------------|
 | Implement ECMModel class (noise spike, dropout, bias) | DONE | `feat: add ECM simulation model` |
 | Implement predict-only mode in KF (no measurement) | DONE | (already implemented in Phase 1 as `step_no_measurement()`) |
-| Create ECM scenario with noise spike | TODO | `feat: add noise spike ECM scenario` |
-| Create ECM scenario with measurement dropout | TODO | `feat: add measurement dropout scenario` |
-| Analyze recovery time after ECM ends | TODO | `feat: add ECM recovery analysis` |
+| Create ECM scenario with noise spike | DONE | `feat: add ECM scenario with noise spike, dropout, bias analysis` |
+| Create ECM scenario with measurement dropout | DONE | (combined into ecm_scenario.py) |
+| Analyze recovery time after ECM ends | DONE | (combined into ecm_scenario.py) |
 | Analyze Q parameter effect on ECM resilience | TODO | `feat: add Q-tuning ECM resilience analysis` |
-| Create examples/ecm_scenario.py demo | TODO | `feat: add ECM scenario example` |
+| Create examples/ecm_scenario.py demo | DONE | (combined into ecm_scenario.py) |
 
 **Exit criteria:** Graphs showing filter degradation during ECM, recovery after ECM ends, and Q parameter impact.
 

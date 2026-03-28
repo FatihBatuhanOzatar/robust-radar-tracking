@@ -140,3 +140,20 @@ Format: Each entry includes the date, commit type, and description of what chang
   - dropout: returns (None, False) during window, passthrough outside window, partial probability keeps some measurements
   - bias: adds exact offset during window, passthrough outside window, requires bias parameter
   - validation: invalid mode raises ValueError, window boundary semantics (start inclusive, end exclusive)
+
+## 2026-03-29 — ECM Scenario Analysis
+
+- **feat:** Created `examples/ecm_scenario.py` — Phase 3 demo combining noise spike, dropout, and bias ECM analysis
+- Straight-line CV target (100 steps, dt=1s), ECM window at steps 30-59, radar noise 25m
+- **Part 1 — ECM Mode Comparison:** Runs all 3 modes, prints per-segment RMSE:
+  - Noise spike (5x): during-ECM 54.77m (3.2x degradation), fast recovery to 20.08m
+  - Dropout (100%): during-ECM 18.64m (CV predict-only is accurate!), post-ECM 14.41m
+  - Bias (+50, +30): during-ECM 62.14m (worst — systematic pull), recovers to 15.46m
+- **Part 1b — Per-mode tracking plots:** `ecm_noise_spike.png`, `ecm_dropout.png`, `ecm_bias.png` via `plot_tracking_result()`
+- **Part 2 — Combined error comparison:** `ecm_comparison.png` with all 3 error curves overlaid and ECM window shaded
+- **Part 3 — Q parameter effect on dropout recovery:** Tests q=0.1, q=0.5, q=2.0
+  - Lower Q → lower post-ECM RMSE (11.78m) but filter trusts model more (slower adaptation)
+  - Higher Q → higher post-ECM RMSE (16.74m) but peak error also higher (47.67m vs 36.23m)
+  - Recovery time = 1 step for all Q values (CV model matches actual motion perfectly)
+  - Generates `ecm_q_comparison.png`
+- Key insight: bias is the most damaging ECM mode; dropout is the least damaging when the motion model is correct
