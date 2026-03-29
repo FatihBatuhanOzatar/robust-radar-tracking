@@ -56,7 +56,7 @@
 
 ## Phase 4 — Multi-Target Tracking
 **Goal:** Track multiple targets simultaneously with data association.
-**Status:** TODO
+**Status:** DONE
 
 | Task | Status | Commit message |
 |------|--------|---------------|
@@ -75,12 +75,12 @@
 
 ## Phase 5 — Analysis & Visualization
 **Goal:** Make the project convincing with comprehensive analysis and polished visuals.
-**Status:** BLOCKED (waiting for Phase 4)
+**Status:** IN PROGRESS
 
 | Task | Status | Commit message |
 |------|--------|---------------|
-| Implement Q/R parameter sweep | TODO | `feat: add parameter sweep analysis` |
-| Generate RMSE heatmap (Q vs R) | TODO | `feat: add Q/R sweep heatmap` |
+| Implement Q/R parameter sweep | DONE | `feat: add parameter sweep analysis` |
+| Generate RMSE heatmap (Q vs R) | DONE | `feat: add parameter sweep analysis` |
 | Create KF performance comparison across scenarios | TODO | `feat: add cross-scenario performance comparison` |
 | Implement matplotlib animation | TODO | `feat: add animated tracking visualization` |
 | Write comprehensive README with analysis results | TODO | `docs: write comprehensive README with results` |

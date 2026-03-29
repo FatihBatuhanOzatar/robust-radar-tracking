@@ -5,5 +5,17 @@ from radarsim.analysis.metrics import (
     rmse,
     velocity_error_over_time,
 )
+from radarsim.analysis.parameter_sweep import (
+    sweep_q,
+    sweep_r,
+    sweep_qr_heatmap,
+)
 
-__all__ = ["rmse", "position_error_over_time", "velocity_error_over_time"]
+__all__ = [
+    "rmse",
+    "position_error_over_time",
+    "velocity_error_over_time",
+    "sweep_q",
+    "sweep_r",
+    "sweep_qr_heatmap",
+]

@@ -242,3 +242,18 @@ Format: Each entry includes the date, commit type, and description of what chang
 - Custom Pyplot plotting integration directly within the file generating 2 explicit visuals per specifications:
   - `multi_target_tracking.png`: Tracks the 2D positional movements for estimated models vs ground truth across multiple colors.
   - `multi_target_track_count.png`: Tracks the lifetime dynamics of active tracker elements vs exact truth references over 100 seconds to vividly exhibit target initialization and termination efficiency.
+
+## 2026-03-29 — Parameter Sweep Analysis
+
+- **feat:** Implemented `radarsim/analysis/parameter_sweep.py` with three functions for Q/R sensitivity analysis
+- `sweep_q(scenario_fn, q_values, r_x, r_y)` — runs scenario at each Q value with fixed R, returns dict of Q → RMSE
+- `sweep_r(scenario_fn, r_values, q)` — runs scenario at each R value with fixed Q, returns dict of R → RMSE
+- `sweep_qr_heatmap(scenario_fn, q_values, r_values)` — runs all Q × R combinations, returns 2D RMSE grid `(len(q), len(r))`
+- All functions take a generic `scenario_fn(q, r_x, r_y) -> (true_states, estimated_states)` callable — works with any scenario
+- Exported all three functions from `radarsim.analysis` subpackage
+- **feat:** Created `examples/parameter_sweep.py` with CV scenario and three analyses:
+  - Q sweep (8 values, fixed R=25m): RMSE ranges 13.88m (Q=0.01) to 18.04m (Q=10.0) — lower Q better for straight-line CV
+  - R sweep (8 values, fixed Q=0.5): RMSE scales near-linearly with measurement noise (3.74m at R=5 to 50.36m at R=100)
+  - Q × R heatmap (64 runs): optimal at Q=0.01, R=5.0 with RMSE=2.95m; uses annotated `imshow` with RdYlGn_r colormap
+- Generates `q_sweep.png`, `r_sweep.png`, `qr_heatmap.png` in `output/`
+
