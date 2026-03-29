@@ -176,3 +176,20 @@ Format: Each entry includes the date, commit type, and description of what chang
   - age and missed counters are mutable externally
   - Multiple tracks can have unique IDs
   - Independent KF instances — updating one track's KF doesn't affect another
+
+## 2026-03-29 — Nearest-Neighbor Data Association
+
+- **feat:** Implemented `nearest_neighbor_associate()` function in `radarsim/tracker/multi_target.py`
+- Pure function: takes list of predicted positions `(2,)` and measurements `(n, 2)`, returns `dict[int, int]` mapping track index → measurement index
+- Algorithm: build Euclidean distance matrix (position only) → greedy assignment (closest pair first, remove both from pool, repeat)
+- **Gating:** optional `gate_threshold` parameter rejects pairs beyond a maximum distance — prevents distant measurements from being assigned to tracks
+- Handles edge cases: empty predictions, empty measurements, more tracks than measurements, more measurements than tracks
+- Standalone function (not a method) for independent testability; MultiTargetTracker.associate() will delegate to it
+- **test:** Added 7 tests to `tests/test_multi_target.py`:
+  - Perfect match (predictions = measurements)
+  - Shuffled measurements (correct pairing by proximity)
+  - More measurements than tracks (surplus unassigned)
+  - More tracks than measurements (some tracks unmatched)
+  - Gating rejects distant pairs
+  - Empty measurements → empty dict
+  - Empty predictions → empty dict

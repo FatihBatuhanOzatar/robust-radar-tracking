@@ -61,7 +61,7 @@
 | Task | Status | Commit message |
 |------|--------|---------------|
 | Implement Track class | DONE | `feat: add Track class for target management` |
-| Implement nearest-neighbor data association | TODO | `feat: add nearest neighbor data association` |
+| Implement nearest-neighbor data association | DONE | `feat: add nearest neighbor data association` |
 | Implement MultiTargetTracker class | TODO | `feat: add multi-target tracker` |
 | Add track initialization logic | TODO | `feat: add track initialization from new measurements` |
 | Add track termination logic | TODO | `feat: add track termination for lost targets` |

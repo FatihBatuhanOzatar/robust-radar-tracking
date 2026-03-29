@@ -4,7 +4,7 @@ import numpy as np
 import pytest
 
 from radarsim.tracker.kf import KalmanFilter
-from radarsim.tracker.multi_target import Track
+from radarsim.tracker.multi_target import Track, nearest_neighbor_associate
 
 
 # ---------------------------------------------------------------------------
@@ -90,3 +90,120 @@ class TestTrackCreation:
 
         assert not np.allclose(state_a[:2], state_b[:2])
         np.testing.assert_allclose(state_b[:2], [100.0, 100.0])
+
+
+# ---------------------------------------------------------------------------
+# Nearest-neighbor data association tests
+# ---------------------------------------------------------------------------
+
+
+class TestNearestNeighborAssociate:
+    """Tests for the nearest_neighbor_associate function."""
+
+    def test_associate_perfect_match(self) -> None:
+        """Predictions identical to measurements — all matched in order."""
+        predictions = [
+            np.array([0.0, 0.0]),
+            np.array([100.0, 0.0]),
+            np.array([0.0, 100.0]),
+        ]
+        measurements = np.array([
+            [0.0, 0.0],
+            [100.0, 0.0],
+            [0.0, 100.0],
+        ])
+
+        result = nearest_neighbor_associate(predictions, measurements)
+
+        assert result == {0: 0, 1: 1, 2: 2}
+
+    def test_associate_shuffled_measurements(self) -> None:
+        """Measurements in different order — correct pairing by proximity."""
+        predictions = [
+            np.array([0.0, 0.0]),
+            np.array([100.0, 0.0]),
+            np.array([0.0, 100.0]),
+        ]
+        # Measurements shuffled: [0,100] is meas 0, [100,0] is meas 1, [0,0] is meas 2
+        measurements = np.array([
+            [0.0, 100.0],
+            [100.0, 0.0],
+            [0.0, 0.0],
+        ])
+
+        result = nearest_neighbor_associate(predictions, measurements)
+
+        # Track 0 ([0,0]) → meas 2 ([0,0])
+        # Track 1 ([100,0]) → meas 1 ([100,0])
+        # Track 2 ([0,100]) → meas 0 ([0,100])
+        assert result == {0: 2, 1: 1, 2: 0}
+
+    def test_associate_more_measurements_than_tracks(self) -> None:
+        """Extra measurements remain unassigned."""
+        predictions = [np.array([0.0, 0.0])]
+        measurements = np.array([
+            [0.0, 0.0],
+            [500.0, 500.0],
+        ])
+
+        result = nearest_neighbor_associate(predictions, measurements)
+
+        assert result == {0: 0}
+        # Measurement index 1 is not in values → unassigned
+        assigned_meas = set(result.values())
+        assert 1 not in assigned_meas
+
+    def test_associate_more_tracks_than_measurements(self) -> None:
+        """Some tracks have no measurement — they are not in the result."""
+        predictions = [
+            np.array([0.0, 0.0]),
+            np.array([100.0, 100.0]),
+            np.array([200.0, 200.0]),
+        ]
+        measurements = np.array([[0.0, 0.0]])
+
+        result = nearest_neighbor_associate(predictions, measurements)
+
+        assert len(result) == 1
+        assert result[0] == 0
+        # Tracks 1 and 2 are unassigned
+        assert 1 not in result
+        assert 2 not in result
+
+    def test_associate_gating_rejects_distant(self) -> None:
+        """Gate rejects a distant measurement even if it is the nearest."""
+        predictions = [
+            np.array([0.0, 0.0]),
+            np.array([100.0, 0.0]),
+        ]
+        measurements = np.array([
+            [1.0, 1.0],      # close to track 0 (distance ~1.4)
+            [500.0, 500.0],   # far from track 1 (distance ~500)
+        ])
+
+        result = nearest_neighbor_associate(
+            predictions, measurements, gate_threshold=50.0,
+        )
+
+        # Track 0 matches meas 0 (distance ~1.4 < 50)
+        # Track 1 has no match (closest meas is ~500 > 50)
+        assert result == {0: 0}
+
+    def test_associate_empty_measurements(self) -> None:
+        """No measurements — empty result."""
+        predictions = [np.array([0.0, 0.0])]
+        measurements = np.array([]).reshape(0, 2)
+
+        result = nearest_neighbor_associate(predictions, measurements)
+
+        assert result == {}
+
+    def test_associate_empty_predictions(self) -> None:
+        """No predictions — empty result."""
+        predictions: list[np.ndarray] = []
+        measurements = np.array([[10.0, 20.0]])
+
+        result = nearest_neighbor_associate(predictions, measurements)
+
+        assert result == {}
+
