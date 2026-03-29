@@ -328,3 +328,56 @@ class TestMultiTargetTracker:
         # Match — resets missed
         tracker.step(np.array([[0.0, 0.0]]))
         assert tracker.get_active_tracks()[0].missed == 0
+
+    def test_tracker_birth_unassigned_measurement(self) -> None:
+        """Unassigned measurements produce new tracks."""
+        tracker = MultiTargetTracker(
+            dt=1.0, q=0.5, r_x=25.0, r_y=25.0, max_missed=2,
+        )
+        # Empty tracker given a measurement
+        tracks = tracker.step(np.array([[10.0, 10.0]]))
+
+        assert len(tracks) == 1
+        assert tracks[0].id == 0
+        assert tracks[0].age == 0
+        assert tracks[0].missed == 0
+        np.testing.assert_allclose(tracks[0].kf.get_state()[:2], [10.0, 10.0])
+
+    def test_tracker_death_max_missed(self) -> None:
+        """Tracks exceeding max_missed are terminated."""
+        tracker = MultiTargetTracker(
+            dt=1.0, q=0.5, r_x=25.0, r_y=25.0, max_missed=2,
+        )
+        tracker._create_track(np.array([0.0, 0.0]))
+
+        # Step 1: missed = 1
+        tracker.step(np.array([]).reshape(0, 2))
+        assert len(tracker.get_active_tracks()) == 1
+
+        # Step 2: missed = 2 (equal to max_missed, still alive)
+        tracker.step(np.array([]).reshape(0, 2))
+        assert len(tracker.get_active_tracks()) == 1
+
+        # Step 3: missed = 3 (greater than max_missed, terminated)
+        tracker.step(np.array([]).reshape(0, 2))
+        assert len(tracker.get_active_tracks()) == 0
+
+    def test_tracker_birth_and_death_together(self) -> None:
+        """Existing track dies while a new unassigned measurement gives birth."""
+        tracker = MultiTargetTracker(
+            dt=1.0, q=0.5, r_x=25.0, r_y=25.0, max_missed=1,
+            gate_threshold=5.0,
+        )
+        tracker._create_track(np.array([0.0, 0.0]))
+
+        # Step 1: Miss once
+        tracker.step(np.array([]).reshape(0, 2))
+        assert tracker.get_active_tracks()[0].id == 0
+
+        # Step 2: Track 0 misses again (terminate). New measurement far away spawns Track 1.
+        tracks = tracker.step(np.array([[100.0, 100.0]]))
+
+        assert len(tracks) == 1
+        assert tracks[0].id == 1  # Track 0 is dead, Track 1 is the new one
+        assert tracks[0].age == 0
+        assert tracks[0].missed == 0

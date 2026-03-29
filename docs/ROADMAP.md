@@ -63,11 +63,11 @@
 | Implement Track class | DONE | `feat: add Track class for target management` |
 | Implement nearest-neighbor data association | DONE | `feat: add nearest neighbor data association` |
 | Implement MultiTargetTracker class | DONE | `feat: add multi-target tracker` |
-| Add track initialization logic | TODO | `feat: add track initialization from new measurements` |
-| Add track termination logic | TODO | `feat: add track termination for lost targets` |
-| Create multi-target scenario (3+ targets) | TODO | `feat: add multi-target tracking scenario` |
-| Add multi-target visualization | TODO | `feat: add multi-target tracking visualization` |
-| Create examples/multi_target.py demo | TODO | `feat: add multi-target tracking example` |
+| Add track initialization logic | DONE | `feat: add track initialization and termination logic` |
+| Add track termination logic | DONE | `feat: add track initialization and termination logic` |
+| Create multi-target scenario (3+ targets) | DONE | `feat: add multi-target tracking scenario and visualization` |
+| Add multi-target visualization | DONE | `feat: add multi-target tracking scenario and visualization` |
+| Create examples/multi_target.py demo | DONE | `feat: add multi-target tracking scenario and visualization` |
 
 **Exit criteria:** 3+ targets tracked simultaneously with correct association, track init/termination working.
 

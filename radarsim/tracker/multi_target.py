@@ -162,11 +162,8 @@ class MultiTargetTracker:
         """Process one time step of measurements.
 
         Core loop: predict all → associate → update matched →
-        coast unmatched → increment age.
-
-        Note: Track initialization (birth from unassigned
-        measurements) and termination (death from excessive misses)
-        are not yet implemented — they will be added in Tasks 4 & 5.
+        coast unmatched → increment age → initialize new tracks →
+        terminate dead tracks.
 
         Args:
             measurements: Array of measurements, shape
@@ -206,9 +203,18 @@ class MultiTargetTracker:
             if i not in assigned_track_indices:
                 track.missed += 1
 
-        # 5. Increment age for all tracks
+        # 5. Increment age for existing active tracks
         for track in self._tracks:
             track.age += 1
+
+        # 6. Initialize new tracks from unassigned measurements
+        assigned_meas_indices = set(assignments.values())
+        for i in range(n_meas):
+            if i not in assigned_meas_indices:
+                self._create_track(meas_arr[i])
+
+        # 7. Terminate dead tracks
+        self._tracks = [t for t in self._tracks if t.missed <= self.max_missed]
 
         return self.get_active_tracks()
 

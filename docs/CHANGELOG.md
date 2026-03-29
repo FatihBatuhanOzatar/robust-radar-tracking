@@ -218,3 +218,27 @@ Format: Each entry includes the date, commit type, and description of what chang
   - Two tracks + shuffled measurements → correct association
   - Age increments across multiple steps
   - Consecutive misses accumulate and reset on match
+
+## 2026-03-29 — Track Initialization and Termination
+
+- **feat:** Completed the tracking lifecycle in `MultiTargetTracker.step()`
+- **Initialization (Birth):** After association, step over all unassigned measurements and create a new track (`_create_track`) for each. New tracks begin with `age=0`, `missed=0`.
+- **Termination (Death):** Filter out active tracks that have exceeded the `max_missed` threshold.
+- Updated `step()` docstring to reflect the completed algorithm.
+- **test:** Added 3 tests to `tests/test_multi_target.py` covering lifecycle events:
+  - `test_tracker_birth_unassigned_measurement`: Passing an unassigned measurement correctly creates a new track with age=0.
+  - `test_tracker_death_max_missed`: A track coasting past `max_missed` steps gets completely removed.
+  - `test_tracker_birth_and_death_together`: Verifies a track dying and another track spawning in the same step work flawlessly simultaneously.
+
+## 2026-03-29 — Multi-Target Configuration and Visualization
+
+- **feat:** Created `examples/multi_target.py` demo for end-to-end multi-target tracking.
+- Implemented a 100-step simulation tracking 3 distinct Constant Velocity targets:
+  - **Target A:** Always present, fast straight line.
+  - **Target B:** Always present, diagonal trajectory.
+  - **Target C:** Spawns dynamically at `t=20` and vanishes at `t=70`.
+- Applied measurement shuffle to ensure the `MultiTargetTracker` algorithm does not rely on list positioning for data association.
+- Calibrated Tracker hyper-parameters: 15m initialization noise, `gate_threshold = 45m` (3-sigma bounds), and `max_missed = 4` logic efficiently rejects clutter without premature track loss.
+- Custom Pyplot plotting integration directly within the file generating 2 explicit visuals per specifications:
+  - `multi_target_tracking.png`: Tracks the 2D positional movements for estimated models vs ground truth across multiple colors.
+  - `multi_target_track_count.png`: Tracks the lifetime dynamics of active tracker elements vs exact truth references over 100 seconds to vividly exhibit target initialization and termination efficiency.
