@@ -24,8 +24,8 @@ The core question: **how do you track something you can barely see?**
 | 1 | Single target, constant velocity KF, RMSE | DONE |
 | 2 | Maneuver scenarios, model breakdown analysis | DONE |
 | 3 | ECM — jamming, dropout, bias, recovery analysis | DONE |
-| 4 | Multi-target tracking with data association | IN PROGRESS |
-| 5 | Comprehensive analysis, visualization, documentation | ⏳ Planned |
+| 4 | Multi-target tracking with data association | DONE |
+| 5 | Comprehensive analysis, visualization, documentation | IN PROGRESS|
 | 6 | Optional extensions (EKF, C++ port, scheduler) | ⏳ Planned |
 
 ## Architecture
