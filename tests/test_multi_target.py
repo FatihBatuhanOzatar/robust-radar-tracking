@@ -4,7 +4,11 @@ import numpy as np
 import pytest
 
 from radarsim.tracker.kf import KalmanFilter
-from radarsim.tracker.multi_target import Track, nearest_neighbor_associate
+from radarsim.tracker.multi_target import (
+    MultiTargetTracker,
+    Track,
+    nearest_neighbor_associate,
+)
 
 
 # ---------------------------------------------------------------------------
@@ -207,3 +211,120 @@ class TestNearestNeighborAssociate:
 
         assert result == {}
 
+
+# ---------------------------------------------------------------------------
+# MultiTargetTracker tests
+# ---------------------------------------------------------------------------
+
+
+class TestMultiTargetTracker:
+    """Tests for the MultiTargetTracker class."""
+
+    def test_tracker_init_empty(self) -> None:
+        """New tracker has no active tracks."""
+        tracker = MultiTargetTracker(
+            dt=1.0, q=0.5, r_x=25.0, r_y=25.0, max_missed=5,
+        )
+
+        assert tracker.get_active_tracks() == []
+
+    def test_tracker_create_track(self) -> None:
+        """_create_track births a track with correct ID, increments counter."""
+        tracker = MultiTargetTracker(
+            dt=1.0, q=0.5, r_x=25.0, r_y=25.0, max_missed=5,
+        )
+
+        t0 = tracker._create_track(np.array([10.0, 20.0]))
+        t1 = tracker._create_track(np.array([100.0, 200.0]))
+
+        assert t0.id == 0
+        assert t1.id == 1
+        assert len(tracker.get_active_tracks()) == 2
+        np.testing.assert_allclose(t0.kf.get_state()[:2], [10.0, 20.0])
+        np.testing.assert_allclose(t1.kf.get_state()[:2], [100.0, 200.0])
+
+    def test_tracker_step_single_matched(self) -> None:
+        """One track + matching measurement → KF updated, missed stays 0."""
+        tracker = MultiTargetTracker(
+            dt=1.0, q=0.5, r_x=25.0, r_y=25.0, max_missed=5,
+        )
+        tracker._create_track(np.array([0.0, 0.0]))
+
+        # Measurement near the predicted position
+        tracks = tracker.step(np.array([[1.0, 1.0]]))
+
+        assert len(tracks) == 1
+        assert tracks[0].missed == 0
+        assert tracks[0].age == 1
+        # KF should have moved toward the measurement
+        state = tracks[0].kf.get_state()
+        assert state[0] > 0.0  # moved toward x=1
+
+    def test_tracker_step_single_coasted(self) -> None:
+        """One track + no measurements → missed increments to 1."""
+        tracker = MultiTargetTracker(
+            dt=1.0, q=0.5, r_x=25.0, r_y=25.0, max_missed=5,
+        )
+        tracker._create_track(np.array([0.0, 0.0]))
+
+        tracks = tracker.step(np.array([]).reshape(0, 2))
+
+        assert len(tracks) == 1
+        assert tracks[0].missed == 1
+        assert tracks[0].age == 1
+
+    def test_tracker_step_two_tracks_correct_association(self) -> None:
+        """Two tracks at different positions get correct measurements."""
+        tracker = MultiTargetTracker(
+            dt=1.0, q=0.5, r_x=25.0, r_y=25.0, max_missed=5,
+        )
+        tracker._create_track(np.array([0.0, 0.0]))
+        tracker._create_track(np.array([100.0, 100.0]))
+
+        # Measurements: one near (0,0), one near (100,100), but shuffled
+        measurements = np.array([
+            [101.0, 99.0],   # closer to track 1
+            [1.0, -1.0],     # closer to track 0
+        ])
+        tracks = tracker.step(measurements)
+
+        assert len(tracks) == 2
+        # Both tracks should be matched (missed = 0)
+        assert tracks[0].missed == 0
+        assert tracks[1].missed == 0
+        # Track 0 should have moved toward (1, -1), not (101, 99)
+        state_0 = tracks[0].kf.get_state()
+        assert abs(state_0[0]) < 50.0  # near origin, not near 100
+        # Track 1 should have moved toward (101, 99), not (1, -1)
+        state_1 = tracks[1].kf.get_state()
+        assert state_1[0] > 50.0  # near 100, not near origin
+
+    def test_tracker_step_increments_age(self) -> None:
+        """After multiple steps, age reflects total steps since creation."""
+        tracker = MultiTargetTracker(
+            dt=1.0, q=0.5, r_x=25.0, r_y=25.0, max_missed=5,
+        )
+        tracker._create_track(np.array([0.0, 0.0]))
+
+        tracker.step(np.array([[1.0, 1.0]]))
+        tracker.step(np.array([[2.0, 2.0]]))
+        tracker.step(np.array([[3.0, 3.0]]))
+
+        tracks = tracker.get_active_tracks()
+        assert tracks[0].age == 3
+
+    def test_tracker_consecutive_misses_accumulate(self) -> None:
+        """Consecutive misses accumulate, reset on match."""
+        tracker = MultiTargetTracker(
+            dt=1.0, q=0.5, r_x=25.0, r_y=25.0, max_missed=5,
+        )
+        tracker._create_track(np.array([0.0, 0.0]))
+
+        # Miss twice
+        tracker.step(np.array([]).reshape(0, 2))
+        tracker.step(np.array([]).reshape(0, 2))
+        assert tracker.get_active_tracks()[0].missed == 2
+
+        # Match — resets missed
+        tracker.step(np.array([[0.0, 0.0]]))
+        assert tracker.get_active_tracks()[0].missed == 0

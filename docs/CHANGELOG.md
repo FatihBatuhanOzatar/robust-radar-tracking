@@ -193,3 +193,28 @@ Format: Each entry includes the date, commit type, and description of what chang
   - Gating rejects distant pairs
   - Empty measurements → empty dict
   - Empty predictions → empty dict
+
+## 2026-03-29 — MultiTargetTracker Class
+
+- **feat:** Implemented `MultiTargetTracker` class in `radarsim/tracker/multi_target.py`
+- Core predict-associate-update loop in `step(measurements)`:
+  1. Predict all active tracks (`kf.predict()`)
+  2. Associate predictions ↔ measurements via `nearest_neighbor_associate()`
+  3. Update matched tracks (`kf.update(z)`, reset `missed = 0`)
+  4. Coast unmatched tracks (prediction already ran, increment `missed += 1`)
+  5. Increment `age` for all tracks
+- `associate()` method: thin wrapper delegating to standalone `nearest_neighbor_associate()` with stored `gate_threshold`
+- `get_active_tracks()` returns shallow copy of track list
+- `_create_track(measurement)` helper: creates a fresh `KalmanFilter` and `Track` with auto-incrementing ID
+- Constructor stores KF parameters (`dt`, `q`, `r_x`, `r_y`) and `max_missed` threshold for reuse when creating tracks
+- **Design:** predict-then-update pattern (not `kf.step()`) prevents double-prediction for matched tracks
+- Track initialization (birth) and termination (death) not yet in `step()` — coming in Tasks 4 & 5
+- Exported `MultiTargetTracker` from `radarsim.tracker` subpackage
+- **test:** Added 7 tests to `tests/test_multi_target.py` (total: 20):
+  - Tracker init has no active tracks
+  - `_create_track` assigns sequential IDs
+  - Single track + matching measurement → updated, missed=0
+  - Single track + no measurements → coasted, missed=1
+  - Two tracks + shuffled measurements → correct association
+  - Age increments across multiple steps
+  - Consecutive misses accumulate and reset on match
