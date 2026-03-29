@@ -157,3 +157,22 @@ Format: Each entry includes the date, commit type, and description of what chang
   - Recovery time = 1 step for all Q values (CV model matches actual motion perfectly)
   - Generates `ecm_q_comparison.png`
 - Key insight: bias is the most damaging ECM mode; dropout is the least damaging when the motion model is correct
+
+## 2026-03-29 — Track Class for Multi-Target Tracking
+
+- **feat:** Implemented `Track` class in `radarsim/tracker/multi_target.py`
+- Track is a data container wrapping a `KalmanFilter` instance with lifecycle bookkeeping
+- `track_id`: unique integer identifier assigned by the tracker
+- `kf`: dedicated KalmanFilter instance (each track owns its own, independently)
+- `age`: steps since creation (incremented externally by MultiTargetTracker)
+- `missed`: consecutive missed measurements (reset to 0 on update, incremented on coast)
+- Constructor takes `track_id`, `kf`, and `initial_measurement` — calls `kf.init_state()` at birth
+- Track does NOT orchestrate KF calls — it's a pure container; MultiTargetTracker manages the control flow
+- Exported `Track` from `radarsim.tracker` subpackage
+- **test:** Created `tests/test_multi_target.py` with 6 tests:
+  - Track creation has correct id, age=0, missed=0
+  - KF state matches initial measurement (position set, velocity zero)
+  - Track stores the same KF instance (not a copy)
+  - age and missed counters are mutable externally
+  - Multiple tracks can have unique IDs
+  - Independent KF instances — updating one track's KF doesn't affect another

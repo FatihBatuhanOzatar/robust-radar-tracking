@@ -38,7 +38,7 @@
 
 ## Phase 3 — ECM / Measurement Degradation
 **Goal:** Analyze filter behavior under jamming and signal loss.
-**Status:** TODO
+**Status:** DONE
 
 | Task | Status | Commit message |
 |------|--------|---------------|
@@ -47,7 +47,7 @@
 | Create ECM scenario with noise spike | DONE | `feat: add ECM scenario with noise spike, dropout, bias analysis` |
 | Create ECM scenario with measurement dropout | DONE | (combined into ecm_scenario.py) |
 | Analyze recovery time after ECM ends | DONE | (combined into ecm_scenario.py) |
-| Analyze Q parameter effect on ECM resilience | TODO | `feat: add Q-tuning ECM resilience analysis` |
+| Analyze Q parameter effect on ECM resilience | DONE | (covered by Q comparison in ecm_scenario.py) |
 | Create examples/ecm_scenario.py demo | DONE | (combined into ecm_scenario.py) |
 
 **Exit criteria:** Graphs showing filter degradation during ECM, recovery after ECM ends, and Q parameter impact.
@@ -56,11 +56,11 @@
 
 ## Phase 4 — Multi-Target Tracking
 **Goal:** Track multiple targets simultaneously with data association.
-**Status:** BLOCKED (waiting for Phase 3)
+**Status:** TODO
 
 | Task | Status | Commit message |
 |------|--------|---------------|
-| Implement Track class | TODO | `feat: add Track class for target management` |
+| Implement Track class | DONE | `feat: add Track class for target management` |
 | Implement nearest-neighbor data association | TODO | `feat: add nearest neighbor data association` |
 | Implement MultiTargetTracker class | TODO | `feat: add multi-target tracker` |
 | Add track initialization logic | TODO | `feat: add track initialization from new measurements` |
