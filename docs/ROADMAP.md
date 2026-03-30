@@ -97,8 +97,10 @@
 | Task | Status | Commit message |
 |------|--------|---------------|
 | Implement ExtendedKalmanFilter class (CT model) | DONE | `feat: add Extended Kalman Filter for coordinated turn model` |
-| Create KF vs EKF maneuver comparison | TODO | `feat: add KF vs EKF maneuver comparison` |
-| Add EKF section to README | TODO | `docs: add EKF comparison results to README` |
+| Create KF vs EKF maneuver comparison | DONE | `feat: add KF vs EKF maneuver comparison` |
+| Add EKF section to README | DONE | `docs: add EKF comparison results to README` |
+
+**Status: DONE**
 
 Other possible extensions (not started):
 - Constant acceleration model

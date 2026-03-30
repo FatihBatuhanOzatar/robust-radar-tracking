@@ -27,6 +27,28 @@ Format: Each entry includes the date, commit type, and description of what chang
 
 ---
 
+## 2026-03-31 — EKF vs KF Comparison + README Update (Phase 6 Tasks 2 & 3)
+
+- **feat:** Created `examples/ekf_comparison.py` — runs CV-KF and CT-EKF on the same 3-phase maneuver scenario
+- Identical ground truth and radar measurements (seed=42, σ=25m) used for both filters for a fair comparison
+- Q parameters tuned to `q_pos=0.5, q_vel=1.0, q_theta=0.05, q_omega=0.01`:
+  - `q_omega=0.01` gives the filter enough bandwidth to track the turn-rate jump (0 → 0.05 rad/s at step 30) within a few time steps
+  - Too small → slow omega convergence; too large → noisy turn-rate estimates
+- **RMSE results (Phase B — the turn):** KF=73.72m, EKF=22.79m — **3.2× improvement**. EKF overall: KF=51.79m → EKF=22.05m (2.4× total)
+- Phase A is slightly worse for EKF (22.38m vs 19.07m) — expected; EKF initialises with v=0, θ=0, ω=0 and needs ~10 steps to converge its speed/heading from position-only measurements
+- Generates two plots saved to both `output/` and `docs/images/`:
+  - `ekf_comparison_tracking.png` — 2D trajectory with turn phase highlighted; KF diverges visibly during arc, EKF follows the curve
+  - `ekf_comparison_error.png` — per-step errors for both filters with maneuver window shaded gold; KF error spikes to ~150m peak, EKF stays ≤60m
+- **docs:** Added "Extended Kalman Filter — Fixing the Maneuver Problem" section to README between Maneuver Analysis and ECM Resilience
+  - Explains EKF state vector `[x, y, v, θ, ω]` and the Jacobian linearisation approach
+  - Embeds both comparison plots with full RMSE table
+  - Documents Phase A startup transient honestly
+  - Updated Architecture section to include `ekf.py`
+  - Updated test count (52 → 90 after EKF's 19 tests + pre-existing 71)
+  - Added `ekf_comparison.py` to How to Run
+
+---
+
 ## 2026-03-28 — Project Initialization
 
 - **init:** Created project documentation (PROJECT.md, ARCHITECTURE.md, ROADMAP.md, CONVENTIONS.md, CHANGELOG.md)
