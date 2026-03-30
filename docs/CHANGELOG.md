@@ -270,3 +270,24 @@ Format: Each entry includes the date, commit type, and description of what chang
 - **docs:** Copied 10 plots from `output/` to `docs/images/` (tracked in git) for README embedding
 - Files: `single_target_tracking.png`, `maneuver_tracking.png`, `maneuver_error.png`, `ecm_comparison.png`, `ecm_q_comparison.png`, `multi_target_tracking.png`, `multi_target_track_count.png`, `q_sweep.png`, `qr_heatmap.png`, `scenario_comparison.png`
 - All scripts re-run with fresh seeds to ensure plots are current
+
+## 2026-03-30 — Animated Tracking Visualization
+
+- **feat:** Implemented `radarsim/viz/animation.py` with `animate_tracking()` function
+- Uses `matplotlib.animation.FuncAnimation` + `PillowWriter` (no ffmpeg dependency)
+- Frame-by-frame build-up: true trajectory (blue line), KF estimate (green dashed), radar measurements (red dots with fading trail)
+- Current position markers (blue circle = true, green square = estimate) and time display
+- Configurable `fps`, `trail_length` parameters
+- **feat:** Created `examples/animation_demo.py` — standalone script generating the GIF
+- Uses Phase 1 CV scenario (60 steps, seed=42) at 15fps with 8-step measurement trail
+- Saves `tracking_animation.gif` (519KB) directly to `docs/images/`
+- Exported `animate_tracking` from `radarsim.viz` subpackage
+
+## 2026-03-30 — Comprehensive README (Phase 5 Complete)
+
+- **docs:** Rewrote README.md with full project story — all results, hard RMSE numbers, embedded images
+- Sections: animation header, What It Does, Defense Domain Context, Results (6 subsections), Architecture, Tech Stack, How to Run, License
+- Defense domain context: missile interception (Iron Dome/Patriot), air surveillance, electronic warfare, sensor fusion
+- All results include precise numbers: CV 49.6% improvement, maneuver 4.6× degradation, dropout 1.1× harmless, bias 3.7×
+- Embedded 11 images from `docs/images/` including the animated GIF as the hero image
+- Phase 5 status: **DONE** — all 6 tasks complete

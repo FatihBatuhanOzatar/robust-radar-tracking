@@ -75,15 +75,15 @@
 
 ## Phase 5 — Analysis & Visualization
 **Goal:** Make the project convincing with comprehensive analysis and polished visuals.
-**Status:** IN PROGRESS
+**Status:** DONE
 
 | Task | Status | Commit message |
 |------|--------|---------------|
 | Implement Q/R parameter sweep | DONE | `feat: add parameter sweep analysis` |
 | Generate RMSE heatmap (Q vs R) | DONE | `feat: add parameter sweep analysis` |
 | Create KF performance comparison across scenarios | DONE | `feat: add cross-scenario performance comparison` |
-| Implement matplotlib animation | TODO | `feat: add animated tracking visualization` |
-| Write comprehensive README with analysis results | TODO | `docs: write comprehensive README with results` |
+| Implement matplotlib animation | DONE | `feat: add animated tracking visualization` |
+| Write comprehensive README with analysis results | DONE | `docs: write comprehensive README with results` |
 | Add all generated plots to docs/images/ | DONE | `docs: add analysis plots and figures` |
 
 **Exit criteria:** README tells a complete story with graphs. Anyone reading it understands the project without running code.
