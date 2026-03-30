@@ -257,3 +257,16 @@ Format: Each entry includes the date, commit type, and description of what chang
   - Q × R heatmap (64 runs): optimal at Q=0.01, R=5.0 with RMSE=2.95m; uses annotated `imshow` with RdYlGn_r colormap
 - Generates `q_sweep.png`, `r_sweep.png`, `qr_heatmap.png` in `output/`
 
+## 2026-03-30 — Cross-Scenario Performance Comparison
+
+- **feat:** Created `examples/scenario_comparison.py` — runs all 5 core scenarios and compares KF performance
+- Scenarios tested with consistent parameters (noise=25m, Q=0.5, seed=42):
+  - Single Target CV: RMSE = 14.69m (baseline)
+  - Coordinated Turn: RMSE = 51.72m (3.5× degradation — CV model breaks during turns)
+  - ECM Noise Spike (5×): RMSE = 33.94m (2.3× degradation)
+  - ECM Dropout (100%): RMSE = 16.67m (predict-only is accurate when motion model matches)
+  - ECM Bias (+50, +30): RMSE = 36.67m (2.5× degradation — worst ECM mode)
+- Generates horizontal bar chart `scenario_comparison.png` saved to both `output/` and `docs/images/`
+- Key insight: maneuver is the hardest challenge for a CV KF; dropout is surprisingly benign when the model is correct
+
+

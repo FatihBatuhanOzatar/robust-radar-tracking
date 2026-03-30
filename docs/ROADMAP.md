@@ -81,7 +81,7 @@
 |------|--------|---------------|
 | Implement Q/R parameter sweep | DONE | `feat: add parameter sweep analysis` |
 | Generate RMSE heatmap (Q vs R) | DONE | `feat: add parameter sweep analysis` |
-| Create KF performance comparison across scenarios | TODO | `feat: add cross-scenario performance comparison` |
+| Create KF performance comparison across scenarios | DONE | `feat: add cross-scenario performance comparison` |
 | Implement matplotlib animation | TODO | `feat: add animated tracking visualization` |
 | Write comprehensive README with analysis results | TODO | `docs: write comprehensive README with results` |
 | Add all generated plots to docs/images/ | TODO | `docs: add analysis plots and figures` |
