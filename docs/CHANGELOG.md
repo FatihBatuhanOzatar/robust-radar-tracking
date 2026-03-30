@@ -264,3 +264,9 @@ Format: Each entry includes the date, commit type, and description of what chang
 - Results: CV baseline 14.69m, Maneuver 51.72m (3.5x), Noise Spike 33.94m (2.3x), Dropout 16.67m (1.1x), Bias 36.67m (2.5x)
 - Key insight: dropout is nearly harmless when motion model is correct (1.1x); maneuver is the worst case (3.5x) because the model itself is wrong
 - Generates `scenario_comparison.png` in `output/` — horizontal bar chart with color coding, RMSE annotations, and baseline reference line
+
+## 2026-03-30 — Analysis Plots for README
+
+- **docs:** Copied 10 plots from `output/` to `docs/images/` (tracked in git) for README embedding
+- Files: `single_target_tracking.png`, `maneuver_tracking.png`, `maneuver_error.png`, `ecm_comparison.png`, `ecm_q_comparison.png`, `multi_target_tracking.png`, `multi_target_track_count.png`, `q_sweep.png`, `qr_heatmap.png`, `scenario_comparison.png`
+- All scripts re-run with fresh seeds to ensure plots are current

@@ -84,7 +84,7 @@
 | Create KF performance comparison across scenarios | DONE | `feat: add cross-scenario performance comparison` |
 | Implement matplotlib animation | TODO | `feat: add animated tracking visualization` |
 | Write comprehensive README with analysis results | TODO | `docs: write comprehensive README with results` |
-| Add all generated plots to docs/images/ | TODO | `docs: add analysis plots and figures` |
+| Add all generated plots to docs/images/ | DONE | `docs: add analysis plots and figures` |
 
 **Exit criteria:** README tells a complete story with graphs. Anyone reading it understands the project without running code.
 
