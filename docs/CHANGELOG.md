@@ -259,14 +259,8 @@ Format: Each entry includes the date, commit type, and description of what chang
 
 ## 2026-03-30 — Cross-Scenario Performance Comparison
 
-- **feat:** Created `examples/scenario_comparison.py` — runs all 5 core scenarios and compares KF performance
-- Scenarios tested with consistent parameters (noise=25m, Q=0.5, seed=42):
-  - Single Target CV: RMSE = 14.69m (baseline)
-  - Coordinated Turn: RMSE = 51.72m (3.5× degradation — CV model breaks during turns)
-  - ECM Noise Spike (5×): RMSE = 33.94m (2.3× degradation)
-  - ECM Dropout (100%): RMSE = 16.67m (predict-only is accurate when motion model matches)
-  - ECM Bias (+50, +30): RMSE = 36.67m (2.5× degradation — worst ECM mode)
-- Generates horizontal bar chart `scenario_comparison.png` saved to both `output/` and `docs/images/`
-- Key insight: maneuver is the hardest challenge for a CV KF; dropout is surprisingly benign when the model is correct
-
-
+- **feat:** Created `examples/scenario_comparison.py` — runs KF through all 5 project scenarios and generates a summary bar chart
+- Scenarios compared: Single Target CV (baseline), Maneuver (turn), ECM Noise Spike, ECM Dropout, ECM Bias
+- Results: CV baseline 14.69m, Maneuver 51.72m (3.5x), Noise Spike 33.94m (2.3x), Dropout 16.67m (1.1x), Bias 36.67m (2.5x)
+- Key insight: dropout is nearly harmless when motion model is correct (1.1x); maneuver is the worst case (3.5x) because the model itself is wrong
+- Generates `scenario_comparison.png` in `output/` — horizontal bar chart with color coding, RMSE annotations, and baseline reference line
