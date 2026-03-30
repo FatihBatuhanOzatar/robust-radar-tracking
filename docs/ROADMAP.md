@@ -92,10 +92,15 @@
 
 ## Phase 6 — Advanced Extensions (Optional)
 **Goal:** Additional features if time permits.
-**Status:** BLOCKED (waiting for Phase 5)
+**Status:** IN PROGRESS
 
-Possible extensions (pick based on time):
-- Extended Kalman Filter (nonlinear motion model)
+| Task | Status | Commit message |
+|------|--------|---------------|
+| Implement ExtendedKalmanFilter class (CT model) | DONE | `feat: add Extended Kalman Filter for coordinated turn model` |
+| Create KF vs EKF maneuver comparison | TODO | `feat: add KF vs EKF maneuver comparison` |
+| Add EKF section to README | TODO | `docs: add EKF comparison results to README` |
+
+Other possible extensions (not started):
 - Constant acceleration model
 - C++ port of core Kalman engine
 - Real-time scheduler integration (threat-based prioritization)

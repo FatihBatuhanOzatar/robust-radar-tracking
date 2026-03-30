@@ -6,6 +6,27 @@ Format: Each entry includes the date, commit type, and description of what chang
 
 ---
 
+## 2026-03-31 — Extended Kalman Filter (Phase 6 Task 1)
+
+- **feat:** Implemented `ExtendedKalmanFilter` class in `radarsim/tracker/ekf.py` — EKF for coordinated-turn target tracking
+- State vector `[x, y, v, theta, omega]` shape `(5,)` — speed + heading + turn rate instead of (vx, vy), capturing circular motion naturally
+- `_compute_f(x)` implements the CT nonlinear state transition (circular arc integral, same equations as `Target._step_ct()`); falls back to CV approximation when `|omega| < 1e-6`
+- `_compute_jacobian(x)` computes the full 5×5 partial-derivative matrix analytically — separate code paths for CT (omega non-zero) and CV (omega near-zero); all entries verified finite
+- `predict()` uses `x = f(x)` (nonlinear) and `P = F_jac @ P @ F_jac.T + Q` (linearised covariance propagation)
+- `update(z)` is identical to standard KF: H is linear (2×5, observing [x, y] directly), Joseph form for numerical stability
+- `get_position()` returns `(2,)` `[x, y]` — compatibility shim for metrics expecting KF-style position output
+- Q matrix: diagonal `diag([q_pos, q_pos, q_vel, q_theta, q_omega])` — empirically tuned, accepts dict (named keys with defaults) or 5-element sequence
+- Exported `ExtendedKalmanFilter` from `radarsim.tracker` subpackage
+- **test:** Created `tests/test_ekf.py` with 19 tests across 5 test classes:
+  - `TestInitState` (5 tests): position from measurement, v/theta/omega=0, shape checks
+  - `TestPredict` (6 tests): straight flight, north flight, covariance grows, heading advances, near-zero omega no crash, Jacobian all-finite
+  - `TestUpdate` (2 tests): covariance reduces, state pulled toward measurement
+  - `TestStep` (2 tests): EKF RMSE < raw RMSE on 50-step CT scenario, returns (5,) state
+  - `TestQParsing` (4 tests): dict format, sequence format, wrong length raises, missing keys use defaults
+- All 71 existing tests continue to pass (EKF adds 19, total: 71)
+
+---
+
 ## 2026-03-28 — Project Initialization
 
 - **init:** Created project documentation (PROJECT.md, ARCHITECTURE.md, ROADMAP.md, CONVENTIONS.md, CHANGELOG.md)
