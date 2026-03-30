@@ -68,6 +68,33 @@ The spike in the error plot pinpoints the exact moment the turn begins. This is 
 
 ---
 
+### Extended Kalman Filter — Fixing the Maneuver Problem
+
+The CV-KF fails during turns because its motion model is simply wrong. The **Extended Kalman Filter (EKF)** solves this by using a *nonlinear* coordinated-turn model and linearising it at each step via a Jacobian matrix. Instead of assuming "keep going straight," it estimates the turn rate ω directly from the measurement stream — no prior knowledge of the maneuver required.
+
+**EKF state vector: `[x, y, v, θ, ω]` (5 elements)** — speed, heading, and turn rate replace (vx, vy). This naturally captures circular motion: speed is constant, direction changes.
+
+![EKF Trajectory Comparison](docs/images/ekf_comparison_tracking.png)
+
+![EKF Error Comparison](docs/images/ekf_comparison_error.png)
+
+**Per-phase RMSE — same trajectory, same measurements, same radar noise (σ=25m):**
+
+| Phase | Description | CV Kalman Filter | CT Extended KF | Improvement |
+|-------|-------------|-----------------|----------------|-------------|
+| A — Straight (0–29) | CV model matches motion | 19.07m | 22.38m | — (EKF converging v, θ) |
+| B — Turn (30–69) | **Model mismatch** | 73.72m | **22.79m** | **3.2× better** |
+| C — Recovery (70–99) | Straight line again | 36.47m | 20.68m | 1.8× better |
+| Overall | All 100 steps | 51.79m | **22.05m** | **2.4× better** |
+
+Key observations:
+- **During the turn, EKF reduces RMSE from 73.7m → 22.8m (3.2×).** The EKF's error barely spikes — it estimates ω ≈ 0.05 rad/s from data within a few steps and tracks the arc correctly.
+- **EKF Phase A is slightly worse** (22m vs 19m) — expected. EKF initialises with v=0, θ=0, ω=0 and needs ~10 steps to converge its velocity estimate. This is visible in the error plot as a small startup transient.
+- **Recovery (Phase C) is faster for EKF** — by the time the turn ends, EKF already has an accurate state estimate. KF spent the entire turn phase being wrong and still hasn't recovered by step 99.
+- EKF process noise Q is empirically tuned: `q_ω=0.01` gives the filter enough adaptation bandwidth to track the turn-rate change while avoiding noise amplification.
+
+---
+
 ### ECM Resilience
 
 Same straight-line target, but adversarial sensor degradation during steps 30–59. Three ECM modes tested.
@@ -165,6 +192,7 @@ radarsim/
 │   └── ecm.py          — ECM: noise spike, dropout, bias injection
 ├── tracker/
 │   ├── kf.py           — Kalman Filter (CV model, from scratch)
+│   ├── ekf.py          — Extended Kalman Filter (CT nonlinear model + Jacobian)
 │   └── multi_target.py — MultiTargetTracker + nearest-neighbor association
 ├── analysis/
 │   ├── metrics.py      — RMSE, position/velocity error over time
@@ -189,7 +217,7 @@ Design principles:
 | Python 3.10+ | Language |
 | NumPy | Matrix operations (F, H, P, Q, R computations) |
 | Matplotlib | Static plots + animated GIF |
-| pytest | 52 unit tests |
+| pytest | 90 unit tests |
 
 No ML frameworks. No library Kalman filter calls. Every equation is explicit.
 
@@ -209,6 +237,7 @@ python examples/multi_target.py        # Phase 4 — 3-target association scenar
 python examples/parameter_sweep.py     # Phase 5 — Q/R sensitivity analysis
 python examples/scenario_comparison.py # Phase 5 — cross-scenario bar chart
 python examples/animation_demo.py      # Phase 5 — generate tracking GIF
+python examples/ekf_comparison.py     # Phase 6 — EKF vs KF maneuver comparison
 
 # Run tests
 python -m pytest tests/ -v
