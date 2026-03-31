@@ -99,11 +99,11 @@
 | Implement ExtendedKalmanFilter class (CT model) | DONE | `feat: add Extended Kalman Filter for coordinated turn model` |
 | Create KF vs EKF maneuver comparison | DONE | `feat: add KF vs EKF maneuver comparison` |
 | Add EKF section to README | DONE | `docs: add EKF comparison results to README` |
+| C++ port of core Kalman engine | DONE | `feat: implement pure C++ port of Kalman Filter engine` |
 
 **Status: DONE**
 
 Other possible extensions (not started):
 - Constant acceleration model
-- C++ port of core Kalman engine
 - Real-time scheduler integration (threat-based prioritization)
 - Threat scoring system

@@ -6,6 +6,22 @@ Format: Each entry includes the date, commit type, and description of what chang
 
 ---
 
+## 2026-03-31 — C++ Port of Kalman Filter Engine (Phase 6 Task 4)
+
+- **feat:** Implemented a pure C++ port of the CV Kalman Filter in `cpp/kalman.h` & `kalman.cpp`
+- 1:1 algorithmic parity with Python `kf.py` including Joseph-form covariance update and Bar-Shalom process noise covariance formulation.
+- **feat:** Implemented zero-dependency fixed-size matrix linear algebra in `cpp/matrix.h` & `matrix.cpp`
+  - Highly optimized, stack-allocated explicit loops for (4×4, 2×4, 4×2, 2×2) array dimensions.
+  - Closed-form 4-line formula for 2×2 inversion eliminating the need for `Eigen` or BLAS libraries.
+- **feat:** Added CLI benchmark simulation `cpp/main.cpp` demonstrating tracking on a 100-step scenario mimicking `single_target.py`.
+  - Proved identical performance trends (55.7% RMSE improvement) to the Python implementation.
+  - Benchmarked tracking performance at ~0.03 milliseconds per 100 iterations.
+- **init:** Added `cpp/Makefile` with optimized `-O2` routines and `-g -fsanitize=address,undefined` debug target checks.
+- **docs:** Added `cpp/README.md` and integrated the benchmark results directly into the root `README.md`.
+- **docs:** Updated `ROADMAP.md` tracking the C++ core engine as completed functionality.
+
+---
+
 ## 2026-03-31 — Extended Kalman Filter (Phase 6 Task 1)
 
 - **feat:** Implemented `ExtendedKalmanFilter` class in `radarsim/tracker/ekf.py` — EKF for coordinated-turn target tracking

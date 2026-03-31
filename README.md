@@ -178,28 +178,50 @@ RMSE increases monotonically with Q on a straight-line scenario: Q=0.01 → 13.8
 | ECM: Bias | 36.67m | 2.5× |
 | Maneuver (turn) | 51.72m | **3.5×** |
 
-Maneuver is worse than all ECM modes. The filter's model is simply wrong during a turn — no amount of Q tuning fully compensates for a fundamentally incorrect motion assumption. ECM degrades measurements; maneuver degrades the model. Model error is harder to recover from.
+### C++ Kalman Filter Port
+
+The core constant-velocity Kalman Filter and all required linear algebra (matrix multiplication, transposition, closed-form 2x2 inversion) have been ported to pure C++ from scratch, without external dependencies like Eigen.
+
+**Benchmark Results:**
+```
+=== C++ Kalman Filter Benchmark ===
+Steps: 100
+Raw Radar RMSE:    34.28 m
+KF Estimate RMSE:  15.18 m
+Improvement: 55.7%
+
+Timing (100 steps): 0.03 ms
+Timing (10000 x 100 steps): 263 ms
+```
+
+The C++ port evaluates a single predict-update step in a fraction of a microsecond using stack-allocated arrays, eliminating memory allocation overhead.
 
 ---
 
 ## Architecture
 
 ```
-radarsim/
-├── sim/
-│   ├── target.py       — Target motion: constant velocity, coordinated turn, random
-│   ├── radar.py        — Gaussian noise measurement simulator
-│   └── ecm.py          — ECM: noise spike, dropout, bias injection
-├── tracker/
-│   ├── kf.py           — Kalman Filter (CV model, from scratch)
-│   ├── ekf.py          — Extended Kalman Filter (CT nonlinear model + Jacobian)
-│   └── multi_target.py — MultiTargetTracker + nearest-neighbor association
-├── analysis/
-│   ├── metrics.py      — RMSE, position/velocity error over time
-│   └── parameter_sweep.py — Q/R sweep and heatmap functions
-└── viz/
-    ├── plots.py         — Static matplotlib figures
-    └── animation.py     — FuncAnimation GIF generator
+robust-radar-tracking/
+├── cpp/
+│   ├── kalman.h/cpp    — Pure C++ port of the CV Kalman Filter
+│   ├── matrix.h/cpp    — Fixed-size matrix math (4x4, 2x4, 2x2) without dependencies
+│   ├── main.cpp        — CLI benchmark demo
+│   └── Makefile        — Build system
+├── radarsim/
+│   ├── sim/
+│   │   ├── target.py       — Target motion: constant velocity, coordinated turn, random
+│   │   ├── radar.py        — Gaussian noise measurement simulator
+│   │   └── ecm.py          — ECM: noise spike, dropout, bias injection
+│   ├── tracker/
+│   │   ├── kf.py           — Kalman Filter (CV model, from scratch)
+│   │   ├── ekf.py          — Extended Kalman Filter (CT nonlinear model + Jacobian)
+│   │   └── multi_target.py — MultiTargetTracker + nearest-neighbor association
+│   ├── analysis/
+│   │   ├── metrics.py      — RMSE, position/velocity error over time
+│   │   └── parameter_sweep.py — Q/R sweep and heatmap functions
+│   └── viz/
+│       ├── plots.py         — Static matplotlib figures
+│       └── animation.py     — FuncAnimation GIF generator
 ```
 
 Design principles:
@@ -207,6 +229,7 @@ Design principles:
 - **No global state** — all parameters passed explicitly
 - **NumPy arrays as interface** — state is always `np.ndarray` shape `(4,)` = `[x, y, vx, vy]`
 - **Physically-derived Q matrix** — from Bar-Shalom acceleration uncertainty formulation, not arbitrary diagonal values
+- **Zero heap allocation (C++)** — all matrix operations in the C++ port run entirely on the stack
 
 ---
 
@@ -214,7 +237,8 @@ Design principles:
 
 | Tool | Role |
 |------|------|
-| Python 3.10+ | Language |
+| Python 3.10+ | Language (Simulation + Analysis) |
+| C++17 | Language (Core Engine Port) |
 | NumPy | Matrix operations (F, H, P, Q, R computations) |
 | Matplotlib | Static plots + animated GIF |
 | pytest | 90 unit tests |
@@ -238,6 +262,9 @@ python examples/parameter_sweep.py     # Phase 5 — Q/R sensitivity analysis
 python examples/scenario_comparison.py # Phase 5 — cross-scenario bar chart
 python examples/animation_demo.py      # Phase 5 — generate tracking GIF
 python examples/ekf_comparison.py     # Phase 6 — EKF vs KF maneuver comparison
+
+# Compile and run C++ core engine benchmark
+cd cpp && make && ./kalman
 
 # Run tests
 python -m pytest tests/ -v

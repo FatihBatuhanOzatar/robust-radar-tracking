@@ -1,0 +1,37 @@
+--- Scheduler Integration Demo ---
+Setting up 10-target simulation (100 steps, dt=1.0s)...
+Running Baseline (Unlimited Budget)...
+Running Scheduled (Budget: 5 Updates/Step)...
+
+=== DIAGNOSTICS AT STEP 50 ===
+ID |           Pos (x, y) |         Vel (vx, vy) |   Score | Updated?
+-----------------------------------------------------------------
+ 3 | (   -66.8,    -46.7) | (    -6.6,     -4.2) |   14.25 | True
+ 1 | (   -65.8,     48.3) | (    -4.8,      2.5) |   10.73 | True
+ 4 | (   559.3,    554.9) | (     9.6,     10.3) |    6.00 | True
+ 8 | (  -114.1,    774.6) | (    -2.3,     13.7) |    6.00 | True
+ 6 | (  -163.6,    298.0) | (    -6.0,     -0.7) |    5.86 | True
+ 7 | (  -163.4,    307.7) | (    -6.0,      0.1) |    5.83 | False
+ 2 | (  -157.3,   -295.1) | (    -4.6,      0.1) |    5.24 | False
+ 5 | (   147.6,    -13.2) | (     7.0,     -1.5) |    4.59 | False
+ 0 | (  -555.6,   -573.5) | (    -9.1,    -11.5) |    4.45 | False
+ 9 | (   173.5,   -261.3) | (     6.0,      1.2) |    4.33 | False
+==============================
+
+
+=== Scheduler Analysis ===
+Budget: 5 updates/step (10 targets)
+
+                No Scheduler    With Scheduler 
+High threat:    10.1m RMSE      11.9m RMSE  (18% worse)
+Med threat:     13.8m RMSE      32.5m RMSE  (134% worse)
+Low threat:     9.9m RMSE      29.9m RMSE  (201% worse)
+
+Deadline misses: 63 (mostly low-threat targets)
+Key insight: Critical targets maintained tracking quality despite 50% CPU budget.
+
+Generating plots...
+Saved: output\scheduler_comparison.png
+Saved: output\scheduler_threat_scores.png
+Saved: output\scheduler_deadline_misses.png
+Done!
