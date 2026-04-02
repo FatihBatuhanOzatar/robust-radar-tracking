@@ -236,6 +236,12 @@ Format: Each entry includes the date, commit type, and description of what chang
   - Multiple tracks can have unique IDs
   - Independent KF instances — updating one track's KF doesn't affect another
 
+## 2026-03-29 — Hungarian Data Association (Updated)
+
+- **refactor:** Upgraded data association from greedy Nearest-Neighbor to Global Optimal Hungarian Algorithm (`scipy.optimize.linear_sum_assignment`).
+- **feat:** Added `hungarian_associate()` function in `radarsim/tracker/multi_target.py` to minimize total Euclidean assignment error.
+- **test:** Replaced `TestNearestNeighborAssociate` with `TestHungarianAssociate` and added `test_associate_global_optimality` verifying algorithm advantages over greedy approach.
+
 ## 2026-03-29 — Nearest-Neighbor Data Association
 
 - **feat:** Implemented `nearest_neighbor_associate()` function in `radarsim/tracker/multi_target.py`

@@ -1,6 +1,7 @@
 """Multi-target tracker with data association."""
 
 import numpy as np
+from scipy.optimize import linear_sum_assignment
 
 from radarsim.tracker.kf import KalmanFilter
 
@@ -40,16 +41,17 @@ class Track:
         self.kf.init_state(initial_measurement)
 
 
-def nearest_neighbor_associate(
+def hungarian_associate(
     predictions: list[np.ndarray],
     measurements: np.ndarray | list[np.ndarray],
     gate_threshold: float | None = None,
 ) -> dict[int, int]:
-    """Greedy nearest-neighbor data association.
+    """Global optimal data association using the Hungarian algorithm.
 
     Computes a distance matrix between predicted positions and
-    measurements, then greedily assigns the closest pairs. An
-    optional gate rejects pairs whose distance exceeds a threshold.
+    measurements, then finds the assignment that minimizes total
+    distance. An optional gate rejects pairs whose distance exceeds
+    a threshold after optimal assignment is found.
 
     Args:
         predictions: List of predicted positions, each shape (2,).
@@ -57,8 +59,8 @@ def nearest_neighbor_associate(
         measurements: Measurement array, shape (n_measurements, 2),
             or list of (2,) arrays. Each row is [x, y].
         gate_threshold: Maximum allowable distance for assignment.
-            Pairs exceeding this distance are rejected even if they
-            are the nearest available. None means no gating.
+            Pairs exceeding this distance are rejected.
+            None means no gating.
 
     Returns:
         Dictionary mapping track index to measurement index for
@@ -81,32 +83,26 @@ def nearest_neighbor_associate(
     if n_tracks == 0 or n_meas == 0:
         return {}
 
-    # Build distance matrix (Euclidean on position)
+    # Build cost matrix (Euclidean on position)
     dist_matrix = np.full((n_tracks, n_meas), np.inf)
     for i, pred in enumerate(predictions):
         for j in range(n_meas):
             dist_matrix[i, j] = np.linalg.norm(pred - meas_arr[j])
 
-    # Apply gate — reject pairs beyond threshold
-    if gate_threshold is not None:
-        dist_matrix[dist_matrix > gate_threshold] = np.inf
+    # Optimize mapping using Hungarian algorithm (Linear Sum Assignment)
+    # linear_sum_assignment gracefully tolerates inf, treating it as unassignable 
+    # as long as feasible assignments exist
+    row_ind, col_ind = linear_sum_assignment(dist_matrix)
 
-    # Greedy assignment — closest pair first
     assignments: dict[int, int] = {}
-
-    while True:
-        # Find the global minimum
-        if not np.isfinite(dist_matrix).any():
-            break
-
-        min_idx = np.unravel_index(np.argmin(dist_matrix), dist_matrix.shape)
-        track_idx, meas_idx = int(min_idx[0]), int(min_idx[1])
-
-        assignments[track_idx] = meas_idx
-
-        # Remove this track and measurement from the pool
-        dist_matrix[track_idx, :] = np.inf
-        dist_matrix[:, meas_idx] = np.inf
+    
+    for r, c in zip(row_ind, col_ind):
+        # Apply gate AFTER assignment to strictly limit max distance
+        if gate_threshold is not None:
+            if dist_matrix[r, c] > gate_threshold:
+                continue
+                
+        assignments[int(r)] = int(c)
 
     return assignments
 
@@ -223,9 +219,9 @@ class MultiTargetTracker:
         predictions: list[np.ndarray],
         measurements: np.ndarray | list[np.ndarray],
     ) -> dict[int, int]:
-        """Run nearest-neighbor data association.
+        """Run Hungarian data association.
 
-        Thin wrapper around the standalone nearest_neighbor_associate
+        Thin wrapper around the standalone hungarian_associate
         function, using this tracker's gate threshold.
 
         Args:
@@ -235,7 +231,7 @@ class MultiTargetTracker:
         Returns:
             Dictionary mapping track index to measurement index.
         """
-        return nearest_neighbor_associate(
+        return hungarian_associate(
             predictions, measurements, self._gate_threshold,
         )
 

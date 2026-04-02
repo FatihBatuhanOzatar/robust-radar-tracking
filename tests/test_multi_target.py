@@ -7,7 +7,7 @@ from radarsim.tracker.kf import KalmanFilter
 from radarsim.tracker.multi_target import (
     MultiTargetTracker,
     Track,
-    nearest_neighbor_associate,
+    hungarian_associate,
 )
 
 
@@ -97,12 +97,12 @@ class TestTrackCreation:
 
 
 # ---------------------------------------------------------------------------
-# Nearest-neighbor data association tests
+# Hungarian data association tests
 # ---------------------------------------------------------------------------
 
 
-class TestNearestNeighborAssociate:
-    """Tests for the nearest_neighbor_associate function."""
+class TestHungarianAssociate:
+    """Tests for the hungarian_associate function."""
 
     def test_associate_perfect_match(self) -> None:
         """Predictions identical to measurements — all matched in order."""
@@ -117,7 +117,7 @@ class TestNearestNeighborAssociate:
             [0.0, 100.0],
         ])
 
-        result = nearest_neighbor_associate(predictions, measurements)
+        result = hungarian_associate(predictions, measurements)
 
         assert result == {0: 0, 1: 1, 2: 2}
 
@@ -135,7 +135,7 @@ class TestNearestNeighborAssociate:
             [0.0, 0.0],
         ])
 
-        result = nearest_neighbor_associate(predictions, measurements)
+        result = hungarian_associate(predictions, measurements)
 
         # Track 0 ([0,0]) → meas 2 ([0,0])
         # Track 1 ([100,0]) → meas 1 ([100,0])
@@ -150,7 +150,7 @@ class TestNearestNeighborAssociate:
             [500.0, 500.0],
         ])
 
-        result = nearest_neighbor_associate(predictions, measurements)
+        result = hungarian_associate(predictions, measurements)
 
         assert result == {0: 0}
         # Measurement index 1 is not in values → unassigned
@@ -166,7 +166,7 @@ class TestNearestNeighborAssociate:
         ]
         measurements = np.array([[0.0, 0.0]])
 
-        result = nearest_neighbor_associate(predictions, measurements)
+        result = hungarian_associate(predictions, measurements)
 
         assert len(result) == 1
         assert result[0] == 0
@@ -185,7 +185,7 @@ class TestNearestNeighborAssociate:
             [500.0, 500.0],   # far from track 1 (distance ~500)
         ])
 
-        result = nearest_neighbor_associate(
+        result = hungarian_associate(
             predictions, measurements, gate_threshold=50.0,
         )
 
@@ -198,7 +198,7 @@ class TestNearestNeighborAssociate:
         predictions = [np.array([0.0, 0.0])]
         measurements = np.array([]).reshape(0, 2)
 
-        result = nearest_neighbor_associate(predictions, measurements)
+        result = hungarian_associate(predictions, measurements)
 
         assert result == {}
 
@@ -207,9 +207,30 @@ class TestNearestNeighborAssociate:
         predictions: list[np.ndarray] = []
         measurements = np.array([[10.0, 20.0]])
 
-        result = nearest_neighbor_associate(predictions, measurements)
+        result = hungarian_associate(predictions, measurements)
 
         assert result == {}
+
+    def test_associate_global_optimality(self) -> None:
+        """Hungarian algorithm avoids the greedy trap."""
+        # Cost matrix:
+        # T0->M0 = 1.0, T0->M1 = 2.0
+        # T1->M0 = 2.0, T1->M1 = 3.6
+        # Greedy picks T0->M0 (1), leaving T1 with M1 (3.6) -> Total: 4.6
+        # Hungarian minimizes total: T0->M1 (2) + T1->M0 (2) -> Total: 4.0
+        predictions = [
+            np.array([0.0, 0.0]),
+            np.array([1.0, 2.0]),
+        ]
+        measurements = np.array([
+            [1.0, 0.0],
+            [-2.0, 0.0],
+        ])
+
+        result = hungarian_associate(predictions, measurements)
+
+        # Optimal mapping: 0 matches 1, and 1 matches 0
+        assert result == {0: 1, 1: 0}
 
 
 # ---------------------------------------------------------------------------
