@@ -15,7 +15,7 @@ The system:
 2. Generates noisy radar measurements with configurable noise parameters
 3. Runs a Kalman Filter to estimate true target position from the noise
 4. Tests resilience under adversarial conditions — jamming, signal loss, sensor bias
-5. Tracks multiple targets simultaneously using nearest-neighbor data association
+5. Tracks multiple targets simultaneously using the Hungarian algorithm for optimal data association
 
 The Kalman Filter is implemented from scratch — no library calls. Every matrix (`F`, `H`, `Q`, `R`, `P`) is constructed explicitly using physically-derived formulas.
 
@@ -144,7 +144,7 @@ Scenario: 3 targets tracked simultaneously with shuffled measurements (tracker n
 
 The track-count plot shows the tracker matching the true target count throughout. Target C's birth and death are handled automatically via the initialization and termination thresholds (`gate_threshold=100m`, `max_missed=5`).
 
-Data association uses nearest-neighbor with distance gating — each measurement is matched to the closest predicted position within the gate radius. Measurements outside the gate spawn new tracks.
+Data association uses the Hungarian algorithm (linear sum assignment) with distance gating — each measurement is matched optimally to minimize total distance error across all targets. Measurements outside the gate spawn new tracks.
 
 ---
 
@@ -215,7 +215,7 @@ robust-radar-tracking/
 │   ├── tracker/
 │   │   ├── kf.py           — Kalman Filter (CV model, from scratch)
 │   │   ├── ekf.py          — Extended Kalman Filter (CT nonlinear model + Jacobian)
-│   │   └── multi_target.py — MultiTargetTracker + nearest-neighbor association
+│   │   └── multi_target.py — MultiTargetTracker + Hungarian data association
 │   ├── analysis/
 │   │   ├── metrics.py      — RMSE, position/velocity error over time
 │   │   └── parameter_sweep.py — Q/R sweep and heatmap functions
@@ -240,8 +240,9 @@ Design principles:
 | Python 3.10+ | Language (Simulation + Analysis) |
 | C++17 | Language (Core Engine Port) |
 | NumPy | Matrix operations (F, H, P, Q, R computations) |
+| SciPy | Data association (Hungarian algorithm) |
 | Matplotlib | Static plots + animated GIF |
-| pytest | 90 unit tests |
+| pytest | 91 unit tests |
 
 No ML frameworks. No library Kalman filter calls. Every equation is explicit.
 
